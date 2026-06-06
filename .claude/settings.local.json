@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx wrangler *)",
+      "Bash(npx tsc *)",
+      "Bash(curl -s http://localhost:8787/sources)",
+      "Bash(curl *)",
+      "Bash(pkill -f \"wrangler dev\")",
+      "Bash(python3 -m json.tool)",
+      "Bash(kill %1)",
+      "Bash(node *)",
+      "Bash(awk '/<script>/,/<\\\\/script>/' /Users/vihaanverma/cv-engine/cv-engine-api/src/dashboard.ts)",
+      "Bash(npm install *)"
+    ]
+  }
+}
