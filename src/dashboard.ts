@@ -890,6 +890,20 @@ OB_MULTI[2] = { key: 'skills',           presets: OB_SKILLS,    addLabel: 'Add y
 OB_MULTI[3] = { key: 'interests',        presets: OB_INTERESTS, addLabel: 'Add your own', inputId: 'ob-add-inp' };
 OB_MULTI[4] = { key: 'target_locations', presets: OB_LOCATIONS, addLabel: 'Add a city',   inputId: 'ob-add-inp' };
 
+var OB_EDU_BOARDS  = ['CBSE', 'ICSE', 'State board', 'IB', 'Other'];
+var OB_EDU_STREAMS = ['PCM', 'PCB', 'Commerce', 'Arts', 'Other'];
+
+var OB_ACHV_CATS    = ['Sports', 'MUN & Debate', 'Olympiads', 'Certificates', 'Competitions', 'Volunteering & NGO', 'Academic honors'];
+var OB_ACHV_PROMPTS = [
+  'Which sport and what level? e.g. Football, state level',
+  'Which event and award? e.g. Best Delegate, HMUN 2024',
+  'Which olympiad and result? e.g. NSSO, national rank 42',
+  'Which certificate? e.g. Google Data Analytics, Coursera',
+  'Which competition and result? e.g. Science fair, district 1st',
+  'Which org and what you did? e.g. Teach for India, 80 hrs',
+  'Which honor? e.g. School topper, class 12 board exams'
+];
+
 /* Render the step at index 'step' into #ob-step-body.
    ADD NEW STEPS: insert else-if blocks for step 2, 3, … before the final else (placeholder). */
 function obRenderStep(step) {
@@ -946,12 +960,24 @@ function obRenderStep(step) {
     body.innerHTML = obRenderMultiStep(4, 'Where do you want opportunities?', 'Select all that apply.');
     nextBtn.disabled = false;
 
+  } else if (step === 5) {
+    /* ── Step 6: Education ── */
+    indEl.textContent = 'Step 6 of ' + OB_TOTAL_STEPS;
+    body.innerHTML = obRenderEducationStep();
+    nextBtn.disabled = false;
+
+  } else if (step === 6) {
+    /* ── Step 7: Achievements ── */
+    indEl.textContent = 'Step 7 of ' + OB_TOTAL_STEPS;
+    body.innerHTML = obRenderAchievementsStep();
+    nextBtn.disabled = false;
+
   } else {
     /* ── Placeholder: remove once later pieces add real steps ── */
-    indEl.textContent = 'Step 6 of ' + OB_TOTAL_STEPS;
+    indEl.textContent = 'Step 8 of ' + OB_TOTAL_STEPS;
     body.innerHTML =
       '<h2 class="ob-heading">More steps coming</h2>' +
-      '<p class="ob-sub">Education, achievements, experience, and review will be added here.</p>';
+      '<p class="ob-sub">Experience and review will be added here.</p>';
     nextBtn.textContent = 'Submit';
     nextBtn.disabled = true;
   }
@@ -1005,6 +1031,142 @@ function obStageOtherInput(val) {
   answers._stageOther = val;
   answers.stage = val.trim() ? val.trim() : null;
   document.getElementById('ob-next').disabled = !answers.stage;
+}
+
+/* ── Education step helpers (step 6) ── */
+
+function obAssembleEducation() {
+  var board  = answers._eduBoard === 'Other' ? (answers._eduBoardOther || '').trim() : (answers._eduBoard || '').trim();
+  var stream = answers._eduStream === 'Other' ? (answers._eduStreamOther || '').trim() : (answers._eduStream || '').trim();
+  var school = (answers._eduSchool || '').trim();
+  var marks  = (answers._eduMarks || '').trim();
+  var parts  = [];
+  if (board)  parts.push(board);
+  if (stream) parts.push(stream);
+  if (school) parts.push(school);
+  if (marks)  parts.push(marks);
+  answers.education = parts.length ? parts.join(', ') : null;
+}
+
+function obRenderEducationStep() {
+  var html = '<h2 class="ob-heading">Your education</h2>';
+  html += '<p class="ob-sub" style="margin-bottom:0">Fill in what applies to you.</p>';
+  html += '<p style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:20px 0 8px">Board</p>';
+  html += '<div class="ob-chips">';
+  for (var i = 0; i < OB_EDU_BOARDS.length; i++) {
+    var bSel = (answers._eduBoard === OB_EDU_BOARDS[i]) ? ' selected' : '';
+    html += '<button class="ob-chip' + bSel + '" onclick="obEduSelectBoard(' + i + ')">' + esc(OB_EDU_BOARDS[i]) + '</button>';
+  }
+  html += '</div>';
+  if (answers._eduBoard === 'Other') {
+    html += '<input id="ob-edu-board-other" class="ob-input" type="text" placeholder="Your board"' +
+            ' value="' + esc(answers._eduBoardOther || '') + '" oninput="obEduBoardOtherInput(this.value)">';
+  }
+  html += '<p style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:20px 0 8px">Stream</p>';
+  html += '<div class="ob-chips">';
+  for (var j = 0; j < OB_EDU_STREAMS.length; j++) {
+    var sSel = (answers._eduStream === OB_EDU_STREAMS[j]) ? ' selected' : '';
+    html += '<button class="ob-chip' + sSel + '" onclick="obEduSelectStream(' + j + ')">' + esc(OB_EDU_STREAMS[j]) + '</button>';
+  }
+  html += '</div>';
+  if (answers._eduStream === 'Other') {
+    html += '<input id="ob-edu-stream-other" class="ob-input" type="text" placeholder="Your stream"' +
+            ' value="' + esc(answers._eduStreamOther || '') + '" oninput="obEduStreamOtherInput(this.value)">';
+  }
+  html += '<input id="ob-edu-school" class="ob-input" type="text" placeholder="School or university name"' +
+          ' value="' + esc(answers._eduSchool || '') + '" oninput="obEduSchoolInput(this.value)">';
+  html += '<input id="ob-edu-marks" class="ob-input" type="text" placeholder="Marks or percentage, e.g. 83.2%"' +
+          ' value="' + esc(answers._eduMarks || '') + '" oninput="obEduMarksInput(this.value)">';
+  return html;
+}
+
+function obEduSelectBoard(idx) {
+  answers._eduBoard = OB_EDU_BOARDS[idx];
+  if (answers._eduBoard !== 'Other') answers._eduBoardOther = null;
+  obAssembleEducation();
+  obRenderStep(currentStep);
+}
+
+function obEduBoardOtherInput(val) {
+  answers._eduBoardOther = val;
+  obAssembleEducation();
+}
+
+function obEduSelectStream(idx) {
+  answers._eduStream = OB_EDU_STREAMS[idx];
+  if (answers._eduStream !== 'Other') answers._eduStreamOther = null;
+  obAssembleEducation();
+  obRenderStep(currentStep);
+}
+
+function obEduStreamOtherInput(val) {
+  answers._eduStreamOther = val;
+  obAssembleEducation();
+}
+
+function obEduSchoolInput(val) {
+  answers._eduSchool = val;
+  obAssembleEducation();
+}
+
+function obEduMarksInput(val) {
+  answers._eduMarks = val;
+  obAssembleEducation();
+}
+
+/* ── Achievements step helpers (step 7) ── */
+
+function obRenderAchievementsStep() {
+  obEnsureArr('achievements');
+  var html = '<h2 class="ob-heading">Any achievements?</h2>';
+  html += '<p class="ob-sub" style="margin-bottom:0">Tap a category, add a detail. Optional.</p>';
+  html += '<div class="ob-chips" style="margin-top:18px">';
+  for (var i = 0; i < OB_ACHV_CATS.length; i++) {
+    var catSel = (answers._achvCat === i) ? ' selected' : '';
+    html += '<button class="ob-chip' + catSel + '" onclick="obAchvSelectCat(' + i + ')">' + esc(OB_ACHV_CATS[i]) + '</button>';
+  }
+  html += '</div>';
+  if (answers._achvCat !== null && answers._achvCat !== undefined) {
+    var prompt = OB_ACHV_PROMPTS[answers._achvCat];
+    html += '<div style="display:flex;gap:8px;margin-top:14px;align-items:center">';
+    html += '<input id="ob-achv-inp" class="ob-input" type="text" placeholder="' + esc(prompt) + '" style="margin-top:0;flex:1">';
+    html += '<button class="btn btn-secondary btn-sm" style="flex-shrink:0" onclick="obAchvAdd()">Add</button>';
+    html += '</div>';
+  }
+  if (answers.achievements.length) {
+    html += '<div style="margin-top:14px;display:flex;flex-direction:column;gap:6px">';
+    for (var j = 0; j < answers.achievements.length; j++) {
+      html += '<div style="display:flex;align-items:center;gap:8px;font-size:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);padding:6px 10px">';
+      html += '<span style="flex:1;color:var(--text)">' + esc(answers.achievements[j]) + '</span>';
+      html += '<button class="btn btn-sm" style="padding:2px 6px;background:transparent;color:var(--muted);border:none" onclick="obAchvRemove(' + j + ')">×</button>';
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  return html;
+}
+
+function obAchvSelectCat(idx) {
+  answers._achvCat = (answers._achvCat === idx) ? null : idx;
+  obRenderStep(currentStep);
+}
+
+function obAchvAdd() {
+  if (answers._achvCat === null || answers._achvCat === undefined) return;
+  var el = document.getElementById('ob-achv-inp');
+  if (!el) return;
+  var detail = el.value.trim();
+  if (!detail) return;
+  obEnsureArr('achievements');
+  answers.achievements.push(OB_ACHV_CATS[answers._achvCat] + ' — ' + detail);
+  el.value = '';
+  obRenderStep(currentStep);
+}
+
+function obAchvRemove(idx) {
+  obEnsureArr('achievements');
+  answers.achievements.splice(idx, 1);
+  obRenderStep(currentStep);
 }
 
 /* ── Multi-select step helpers (steps 3, 4, 5) ── */
