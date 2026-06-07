@@ -882,6 +882,14 @@ var OB_TOTAL_STEPS = 8;
 /* Stage options for step 2 — defined once so obSelectStage can reference by index. */
 var OB_STAGES = ['School student', 'Undergraduate', 'Graduate', 'Working professional', 'Other'];
 
+var OB_SKILLS    = ['Programming', 'Public speaking', 'Writing', 'Design', 'Languages', 'Debate & MUN', 'Leadership', 'Research', 'Sports'];
+var OB_INTERESTS = ['Computer Science', 'Technology', 'Business', 'Design', 'Research', 'Social work', 'Finance', 'Healthcare'];
+var OB_LOCATIONS = ['India', 'Remote', 'Global'];
+var OB_MULTI = {};
+OB_MULTI[2] = { key: 'skills',           presets: OB_SKILLS,    addLabel: 'Add your own', inputId: 'ob-add-inp' };
+OB_MULTI[3] = { key: 'interests',        presets: OB_INTERESTS, addLabel: 'Add your own', inputId: 'ob-add-inp' };
+OB_MULTI[4] = { key: 'target_locations', presets: OB_LOCATIONS, addLabel: 'Add a city',   inputId: 'ob-add-inp' };
+
 /* Render the step at index 'step' into #ob-step-body.
    ADD NEW STEPS: insert else-if blocks for step 2, 3, … before the final else (placeholder). */
 function obRenderStep(step) {
@@ -920,12 +928,30 @@ function obRenderStep(step) {
     body.innerHTML = html;
     nextBtn.disabled = !answers.stage;
 
-  } else {
-    /* ── Placeholder: remove this block once later pieces add real steps ── */
+  } else if (step === 2) {
+    /* ── Step 3: Skills ── */
     indEl.textContent = 'Step 3 of ' + OB_TOTAL_STEPS;
+    body.innerHTML = obRenderMultiStep(2, 'What are your skills?', 'Select all that apply.');
+    nextBtn.disabled = false;
+
+  } else if (step === 3) {
+    /* ── Step 4: Interests ── */
+    indEl.textContent = 'Step 4 of ' + OB_TOTAL_STEPS;
+    body.innerHTML = obRenderMultiStep(3, 'What are your interests?', 'Select all that apply.');
+    nextBtn.disabled = false;
+
+  } else if (step === 4) {
+    /* ── Step 5: Target locations ── */
+    indEl.textContent = 'Step 5 of ' + OB_TOTAL_STEPS;
+    body.innerHTML = obRenderMultiStep(4, 'Where do you want opportunities?', 'Select all that apply.');
+    nextBtn.disabled = false;
+
+  } else {
+    /* ── Placeholder: remove once later pieces add real steps ── */
+    indEl.textContent = 'Step 6 of ' + OB_TOTAL_STEPS;
     body.innerHTML =
       '<h2 class="ob-heading">More steps coming</h2>' +
-      '<p class="ob-sub">Skills, education, and goals questions will be added here.</p>';
+      '<p class="ob-sub">Education, achievements, experience, and review will be added here.</p>';
     nextBtn.textContent = 'Submit';
     nextBtn.disabled = true;
   }
@@ -979,6 +1005,68 @@ function obStageOtherInput(val) {
   answers._stageOther = val;
   answers.stage = val.trim() ? val.trim() : null;
   document.getElementById('ob-next').disabled = !answers.stage;
+}
+
+/* ── Multi-select step helpers (steps 3, 4, 5) ── */
+
+function obEnsureArr(key) {
+  if (!Array.isArray(answers[key])) answers[key] = [];
+}
+
+function obRenderMultiStep(stepIdx, heading, sub) {
+  var cfg = OB_MULTI[stepIdx];
+  obEnsureArr(cfg.key);
+  var arr = answers[cfg.key];
+  var html = '<h2 class="ob-heading">' + esc(heading) + '</h2>';
+  html += '<p class="ob-sub" style="margin-bottom:0">' + esc(sub) + '</p>';
+  html += '<div class="ob-chips">';
+  for (var i = 0; i < cfg.presets.length; i++) {
+    var sel = arr.indexOf(cfg.presets[i]) !== -1 ? ' selected' : '';
+    html += '<button class="ob-chip' + sel + '" onclick="obTogglePresetChip(' + stepIdx + ',' + i + ')">' + esc(cfg.presets[i]) + '</button>';
+  }
+  for (var j = 0; j < arr.length; j++) {
+    if (cfg.presets.indexOf(arr[j]) === -1) {
+      html += '<button class="ob-chip selected" onclick="obRemoveCustomChip(' + stepIdx + ',' + j + ')">' + esc(arr[j]) + ' ×</button>';
+    }
+  }
+  html += '</div>';
+  html += '<div style="display:flex;gap:8px;margin-top:16px;align-items:center">';
+  html += '<input id="ob-add-inp" class="ob-input" type="text" placeholder="' + esc(cfg.addLabel) + '" style="margin-top:0;flex:1">';
+  html += '<button class="btn btn-secondary btn-sm" style="flex-shrink:0" onclick="obAddCustomChip(' + stepIdx + ')">Add</button>';
+  html += '</div>';
+  return html;
+}
+
+function obTogglePresetChip(stepIdx, presetIdx) {
+  var cfg = OB_MULTI[stepIdx];
+  if (!cfg) return;
+  var val = cfg.presets[presetIdx];
+  obEnsureArr(cfg.key);
+  var i = answers[cfg.key].indexOf(val);
+  if (i === -1) answers[cfg.key].push(val);
+  else answers[cfg.key].splice(i, 1);
+  obRenderStep(currentStep);
+}
+
+function obRemoveCustomChip(stepIdx, arrIdx) {
+  var cfg = OB_MULTI[stepIdx];
+  if (!cfg) return;
+  obEnsureArr(cfg.key);
+  answers[cfg.key].splice(arrIdx, 1);
+  obRenderStep(currentStep);
+}
+
+function obAddCustomChip(stepIdx) {
+  var cfg = OB_MULTI[stepIdx];
+  if (!cfg) return;
+  var el = document.getElementById(cfg.inputId);
+  if (!el) return;
+  var val = el.value.trim();
+  if (!val) return;
+  obEnsureArr(cfg.key);
+  if (answers[cfg.key].indexOf(val) === -1) answers[cfg.key].push(val);
+  el.value = '';
+  obRenderStep(currentStep);
 }
 
 /* ── Init ── */
