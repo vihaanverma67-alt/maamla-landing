@@ -196,6 +196,18 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
 .ob-heading{font-size:22px;font-weight:700;letter-spacing:-.4px;color:var(--text);margin-bottom:12px}
 .ob-sub{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:28px}
 .ob-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* ── onboarding form steps ── */
+.ob-form-wrap{max-width:480px;margin:80px auto 0;padding:0 24px}
+.ob-step-ind{font-size:12px;color:var(--muted);margin-bottom:20px;text-align:left;letter-spacing:.2px}
+.ob-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:14px;background:var(--surface-2);color:var(--text);font-family:inherit;display:block;margin-top:16px}
+.ob-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,117,255,.15)}
+.ob-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.ob-chip{padding:8px 16px;border-radius:20px;font-size:13px;font-weight:500;background:var(--surface-2);color:var(--text);border:1px solid var(--border);cursor:pointer;transition:background .1s,border-color .1s,color .1s;white-space:nowrap;line-height:1.4}
+.ob-chip:hover{background:#1E1E2C;border-color:var(--border-2)}
+.ob-chip.selected{background:var(--accent-bg);color:var(--accent);border-color:#483D80}
+.ob-chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ob-nav{display:flex;align-items:center;justify-content:space-between;margin-top:28px}
 </style>
 </head>
 <body>
@@ -219,6 +231,18 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
     <div class="ob-actions">
       <button class="btn btn-primary" onclick="onboardCv()">I have a CV</button>
       <button class="btn btn-secondary" onclick="onboardQuestions()">I&#8217;ll answer a few questions</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Onboarding multi-step form (rendered by JS into #ob-step-body) ── -->
+<div id="ob-form" style="display:none" class="ob-form-wrap">
+  <div class="ob-card">
+    <div id="ob-step-ind" class="ob-step-ind"></div>
+    <div id="ob-step-body"></div>
+    <div class="ob-nav">
+      <button class="btn btn-secondary" id="ob-back" onclick="obBack()">Back</button>
+      <button class="btn btn-primary" id="ob-next" onclick="obNext()">Next</button>
     </div>
   </div>
 </div>
@@ -842,9 +866,120 @@ function reviewQueueDraft(id) {
   if (d) openDraftModal(d);
 }
 
-/* ── Onboarding button stubs (wired in later stages) ── */
-function onboardCv() { console.log('I have a CV'); }
-function onboardQuestions() { console.log("I'll answer a few questions"); }
+/* ── Onboarding button stubs ── */
+function onboardCv() { /* placeholder — built in a later piece */ }
+
+/* ── Onboarding multi-step form ── */
+
+/* In-memory answers object. Keys are added as steps complete.
+   _stageChip and _stageOther are internal helpers for step 2. */
+var answers = {};
+var currentStep = 0;
+
+/* Update OB_TOTAL_STEPS as later pieces add real steps. */
+var OB_TOTAL_STEPS = 8;
+
+/* Stage options for step 2 — defined once so obSelectStage can reference by index. */
+var OB_STAGES = ['School student', 'Undergraduate', 'Graduate', 'Working professional', 'Other'];
+
+/* Render the step at index 'step' into #ob-step-body.
+   ADD NEW STEPS: insert else-if blocks for step 2, 3, … before the final else (placeholder). */
+function obRenderStep(step) {
+  var body    = document.getElementById('ob-step-body');
+  var nextBtn = document.getElementById('ob-next');
+  var indEl   = document.getElementById('ob-step-ind');
+  nextBtn.textContent = 'Next';
+  nextBtn.disabled = false;
+
+  if (step === 0) {
+    /* ── Step 1: Name ── */
+    indEl.textContent = 'Step 1 of ' + OB_TOTAL_STEPS;
+    body.innerHTML =
+      '<h2 class="ob-heading">What\\'s your name?</h2>' +
+      '<input id="ob-name" class="ob-input" type="text" placeholder="Your full name"' +
+      ' value="' + esc(answers.name || '') + '" oninput="obNameInput(this.value)">';
+    nextBtn.disabled = !(answers.name && answers.name.trim().length > 0);
+
+  } else if (step === 1) {
+    /* ── Step 2: Stage ── */
+    indEl.textContent = 'Step 2 of ' + OB_TOTAL_STEPS;
+    var html = '<h2 class="ob-heading">What\\'s your current stage?</h2><div class="ob-chips">';
+    for (var i = 0; i < OB_STAGES.length; i++) {
+      var sel = (answers._stageChip === OB_STAGES[i]) ? ' selected' : '';
+      html += '<button class="ob-chip' + sel + '" onclick="obSelectStage(' + i + ')">' +
+              esc(OB_STAGES[i]) + '</button>';
+    }
+    html += '</div>';
+    /* "Other" chip reveals a free-text input whose value becomes answers.stage */
+    if (answers._stageChip === 'Other') {
+      html += '<input id="ob-stage-other" class="ob-input" type="text"' +
+              ' placeholder="Describe your situation"' +
+              ' value="' + esc(answers._stageOther || '') + '"' +
+              ' oninput="obStageOtherInput(this.value)">';
+    }
+    body.innerHTML = html;
+    nextBtn.disabled = !answers.stage;
+
+  } else {
+    /* ── Placeholder: remove this block once later pieces add real steps ── */
+    indEl.textContent = 'Step 3 of ' + OB_TOTAL_STEPS;
+    body.innerHTML =
+      '<h2 class="ob-heading">More steps coming</h2>' +
+      '<p class="ob-sub">Skills, education, and goals questions will be added here.</p>';
+    nextBtn.textContent = 'Submit';
+    nextBtn.disabled = true;
+  }
+}
+
+/* Entry point called from the intro card button */
+function onboardQuestions() {
+  document.getElementById('onboarding').style.display = 'none';
+  document.getElementById('ob-form').style.display = 'block';
+  currentStep = 0;
+  obRenderStep(0);
+}
+
+function obBack() {
+  if (currentStep === 0) {
+    /* Step 1 Back → return to intro card */
+    document.getElementById('ob-form').style.display = 'none';
+    document.getElementById('onboarding').style.display = 'block';
+    return;
+  }
+  currentStep--;
+  obRenderStep(currentStep);
+}
+
+function obNext() {
+  currentStep++;
+  obRenderStep(currentStep);
+}
+
+/* Step 1 helpers */
+function obNameInput(val) {
+  answers.name = val;
+  document.getElementById('ob-next').disabled = !(val && val.trim().length > 0);
+}
+
+/* Step 2 helpers */
+function obSelectStage(idx) {
+  var chosen = OB_STAGES[idx];
+  answers._stageChip = chosen;
+  if (chosen === 'Other') {
+    /* Don't commit answers.stage until they type something */
+    answers.stage = (answers._stageOther && answers._stageOther.trim()) ? answers._stageOther.trim() : null;
+  } else {
+    answers.stage = chosen;
+    answers._stageOther = null;
+  }
+  obRenderStep(currentStep); /* re-render to update highlights + show/hide Other input */
+}
+
+function obStageOtherInput(val) {
+  answers._stageOther = val;
+  answers.stage = val.trim() ? val.trim() : null;
+  document.getElementById('ob-next').disabled = !answers.stage;
+}
 
 /* ── Init ── */
 (function() {
