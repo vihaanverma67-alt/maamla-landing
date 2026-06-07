@@ -877,7 +877,7 @@ var answers = {};
 var currentStep = 0;
 
 /* Update OB_TOTAL_STEPS as later pieces add real steps. */
-var OB_TOTAL_STEPS = 8;
+var OB_TOTAL_STEPS = 9;
 
 /* Stage options for step 2 — defined once so obSelectStage can reference by index. */
 var OB_STAGES = ['School student', 'Undergraduate', 'Graduate', 'Working professional', 'Other'];
@@ -972,14 +972,18 @@ function obRenderStep(step) {
     body.innerHTML = obRenderAchievementsStep();
     nextBtn.disabled = false;
 
-  } else {
-    /* ── Placeholder: remove once later pieces add real steps ── */
+  } else if (step === 7) {
+    /* ── Step 8: Experience ── */
     indEl.textContent = 'Step 8 of ' + OB_TOTAL_STEPS;
-    body.innerHTML =
-      '<h2 class="ob-heading">More steps coming</h2>' +
-      '<p class="ob-sub">Experience and review will be added here.</p>';
+    body.innerHTML = obRenderExperienceStep();
+    nextBtn.disabled = false;
+
+  } else if (step === 8) {
+    /* ── Step 9: Review ── */
+    indEl.textContent = 'Step 9 of ' + OB_TOTAL_STEPS;
+    body.innerHTML = obRenderReviewStep();
     nextBtn.textContent = 'Submit';
-    nextBtn.disabled = true;
+    nextBtn.disabled = false;
   }
 }
 
@@ -1003,6 +1007,10 @@ function obBack() {
 }
 
 function obNext() {
+  if (currentStep === OB_TOTAL_STEPS - 1) {
+    obSubmit();
+    return;
+  }
   currentStep++;
   obRenderStep(currentStep);
 }
@@ -1231,16 +1239,124 @@ function obAddCustomChip(stepIdx) {
   obRenderStep(currentStep);
 }
 
-/* ── Init ── */
-(function() {
-  var mainEl = document.querySelector('main.main');
-  if (mainEl) mainEl.style.display = 'none';
+/* ── Experience step helpers (step 8) ── */
 
-  function showDashboard() {
-    if (mainEl) mainEl.style.display = '';
-    Promise.all([loadOpps(), loadCvAnalysis(), loadSources(), loadCvText(), loadQueue()]);
+function obRenderExperienceStep() {
+  var html = '<h2 class="ob-heading">Any work or internship experience?</h2>';
+  html += '<p class="ob-sub" style="margin-bottom:0">Internships, part-time, freelance — anything counts.</p>';
+  html += '<div class="ob-chips" style="margin-top:18px">';
+  var yesSel = (answers._expChoice === 'Yes') ? ' selected' : '';
+  var noSel  = (answers._expChoice === 'No')  ? ' selected' : '';
+  html += '<button class="ob-chip' + yesSel + '" onclick="obExpSelect(1)">Yes</button>';
+  html += '<button class="ob-chip' + noSel  + '" onclick="obExpSelect(0)">No</button>';
+  html += '</div>';
+  if (answers._expChoice === 'Yes') {
+    html += '<textarea id="ob-exp-text" class="ob-input" style="min-height:100px;resize:vertical"' +
+            ' placeholder="Briefly describe your experience..."' +
+            ' oninput="obExpTextInput(this.value)">' + esc(answers.experience || '') + '</textarea>';
   }
+  return html;
+}
 
+function obExpSelect(isYes) {
+  answers._expChoice = isYes ? 'Yes' : 'No';
+  if (!isYes) answers.experience = '';
+  obRenderStep(currentStep);
+}
+
+function obExpTextInput(val) {
+  answers.experience = val;
+}
+
+/* ── Review + submit helpers (step 9) ── */
+
+function obRenderReviewStep() {
+  obEnsureArr('skills');
+  obEnsureArr('interests');
+  obEnsureArr('target_locations');
+  obEnsureArr('achievements');
+  function row(label, val) {
+    return '<div style="border:1px solid var(--border);border-radius:var(--r-sm);padding:8px 12px">' +
+           '<div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">' + label + '</div>' +
+           '<div style="font-size:13px;color:var(--text)">' + (val || '<span style="color:var(--subtle)">Not set</span>') + '</div>' +
+           '</div>';
+  }
+  var html = '<h2 class="ob-heading">Review your profile</h2>';
+  html += '<p class="ob-sub" style="margin-bottom:0">Check everything looks right, then submit.</p>';
+  html += '<div style="margin-top:20px;display:flex;flex-direction:column;gap:10px">';
+  html += row('Name',             esc(answers.name  || ''));
+  html += row('Stage',            esc(answers.stage || ''));
+  html += row('Education',        esc(answers.education || ''));
+  html += row('Skills',           esc(answers.skills.join(', ')));
+  html += row('Interests',        esc(answers.interests.join(', ')));
+  html += row('Target locations', esc(answers.target_locations.join(', ')));
+  var achvVal = answers.achievements.length
+    ? answers.achievements.map(function(a) { return esc(a); }).join('<br>')
+    : '';
+  html += row('Achievements', achvVal);
+  var expVal = answers.experience ? esc(answers.experience) : 'None';
+  html += row('Experience', expVal);
+  html += '</div>';
+  return html;
+}
+
+function obSubmit() {
+  var btn = document.getElementById('ob-next');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+  obEnsureArr('skills');
+  obEnsureArr('interests');
+  obEnsureArr('target_locations');
+  obEnsureArr('achievements');
+  var payload = {
+    name:             answers.name || '',
+    stage:            answers.stage || '',
+    education:        answers.education || '',
+    skills:           answers.skills,
+    interests:        answers.interests,
+    target_locations: answers.target_locations,
+    achievements:     answers.achievements,
+    experience:       answers.experience != null ? answers.experience : ''
+  };
+  fetch('/onboard', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r) { return r.json().then(function(d) { return { status: r.status, body: d }; }); })
+  .then(function(res) {
+    if (res.status === 200 && res.body.ok) {
+      document.getElementById('ob-form').style.display = 'none';
+      showDashboard();
+    } else if (res.status === 409 && res.body.error === 'already_onboarded') {
+      document.getElementById('ob-form').style.display = 'none';
+      showStatus('You already have a profile');
+      showDashboard();
+    } else if (res.status === 400 && res.body.error === 'name_required') {
+      showStatus('Please enter your name');
+      currentStep = 0;
+      obRenderStep(0);
+    } else {
+      showStatus('Something went wrong, please try again');
+      if (btn) { btn.disabled = false; btn.textContent = 'Submit'; }
+    }
+  })
+  .catch(function(e) {
+    console.error('[cv-engine] obSubmit:', e);
+    showStatus('Something went wrong, please try again');
+    if (btn) { btn.disabled = false; btn.textContent = 'Submit'; }
+  });
+}
+
+/* ── Init ── */
+var mainEl = document.querySelector('main.main');
+if (mainEl) mainEl.style.display = 'none';
+
+function showDashboard() {
+  if (mainEl) mainEl.style.display = '';
+  Promise.all([loadOpps(), loadCvAnalysis(), loadSources(), loadCvText(), loadQueue()]);
+}
+
+(function() {
   fetch('/me')
     .then(function(r) {
       if (r.status === 401) return { authenticated: false };
