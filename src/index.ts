@@ -481,4 +481,8 @@ export default {
 			return json({ error: String(err) }, 500);
 		}
 	},
+
+	async scheduled(_controller: ScheduledController, env: Env, _ctx: ExecutionContext): Promise<void> {
+		await runAllSources(env.cv_engine_db);
+	},
 } satisfies ExportedHandler<Env>;

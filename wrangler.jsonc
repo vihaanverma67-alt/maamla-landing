@@ -25,6 +25,9 @@
 	"vars": {
 		"ACCESS_TEAM_DOMAIN": "patient-voice-4f4f.cloudflareaccess.com",
 		"ACCESS_AUD": "23fe76292decbb9bb237062432615ea54d39e6cea9449f290fd62838c58311c1"
+	},
+	"triggers": {
+		"crons": ["0 */12 * * *"]
 	}
 	/**
 	 * Smart Placement
