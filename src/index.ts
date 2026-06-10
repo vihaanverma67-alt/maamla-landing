@@ -6,6 +6,7 @@ import { getDashboardHtml } from './dashboard';
 import { classifyRegion, now } from './collectors/utils';
 import { generateDraft } from './drafter';
 import { getVerifiedUserEmail } from './auth';
+import { parseCv, detectFromText } from './cv-parser';
 
 function json(data: unknown, status = 200): Response {
 	return new Response(JSON.stringify(data), {
@@ -95,6 +96,7 @@ export default {
 					target_locations?: unknown;
 					achievements?: unknown;
 					experience?: unknown;
+					cv_text?: unknown;
 				};
 
 				const name = typeof body.name === 'string' ? body.name.trim() : '';
@@ -108,25 +110,29 @@ export default {
 				const targetLocs   = Array.isArray(body.target_locations)  ? (body.target_locations as string[]) : [];
 				const achievements = Array.isArray(body.achievements)       ? (body.achievements as string[]) : [];
 
-				const cv_text = [
-					name,
-					stage,
-					'',
-					'EDUCATION',
-					education,
-					'',
-					'SKILLS',
-					skills.join(', '),
-					'',
-					'ACHIEVEMENTS',
-					achievements.join('\n'),
-					'',
-					'EXPERIENCE',
-					experience || '—',
-					'',
-					'INTERESTS',
-					interests.join(', '),
-				].join('\n');
+				const cvTextOverride = typeof body.cv_text === 'string' && body.cv_text.trim() ? body.cv_text.trim() : null;
+
+				const cv_text =
+					cvTextOverride ??
+					[
+						name,
+						stage,
+						'',
+						'EDUCATION',
+						education,
+						'',
+						'SKILLS',
+						skills.join(', '),
+						'',
+						'ACHIEVEMENTS',
+						achievements.join('\n'),
+						'',
+						'EXPERIENCE',
+						experience || '—',
+						'',
+						'INTERESTS',
+						interests.join(', '),
+					].join('\n');
 
 				const headline = stage || education.split('\n')[0] || '';
 
@@ -151,6 +157,37 @@ export default {
 					.run();
 
 				return json({ ok: true, onboarded: true });
+			}
+
+			// POST /parse-cv — extract text + detect structure from uploaded CV file
+			if (method === 'POST' && path === '/parse-cv') {
+				const email = await resolveEmail(request, env);
+				if (!email) return json({ error: 'not_authenticated' }, 401);
+
+				const ct = request.headers.get('content-type') ?? '';
+				if (!ct.includes('multipart/form-data')) {
+					return json({ error: 'Expected multipart/form-data' }, 400);
+				}
+
+				const formData = await request.formData();
+				const file = formData.get('file');
+				if (!(file instanceof File)) return json({ error: 'No file field found' }, 400);
+
+				const MAX_BYTES = 2 * 1024 * 1024;
+				if (file.size > MAX_BYTES) {
+					return json({ error: 'File too large — maximum 2 MB. Paste your CV text directly.' }, 413);
+				}
+
+				const lname = file.name.toLowerCase();
+				if (!lname.endsWith('.pdf') && !lname.endsWith('.docx') && !lname.endsWith('.txt')) {
+					return json({ error: 'Unsupported file type. Upload a .pdf, .docx, or .txt file.' }, 400);
+				}
+
+				const buffer = await file.arrayBuffer();
+				const { text, warning } = parseCv(buffer, file.name);
+				const detected = text ? detectFromText(text) : { name: null, stage: null, skills: [] };
+
+				return json({ text, detected, warning });
 			}
 
 			// POST /sources/bulk — must come before POST /sources

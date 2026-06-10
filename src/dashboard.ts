@@ -208,6 +208,14 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
 .ob-chip.selected{background:var(--accent-bg);color:var(--accent);border-color:#483D80}
 .ob-chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .ob-nav{display:flex;align-items:center;justify-content:space-between;margin-top:28px}
+.cv-upload-area{display:flex;flex-direction:column;align-items:center;gap:8px;padding:32px 20px;border:2px dashed var(--border);border-radius:var(--r);cursor:pointer;transition:border-color .15s,background .15s;margin-top:4px;background:var(--surface-2)}
+.cv-upload-area:hover{border-color:var(--accent);background:var(--accent-bg)}
+.cv-upload-prompt{font-size:14px;font-weight:600;color:var(--text)}
+.cv-upload-types{font-size:12px;color:var(--subtle)}
+.ob-err{font-size:13px;color:#F87171;margin-top:16px;line-height:1.5;text-align:left}
+.cv-txt-area{width:100%;min-height:220px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-sm);font-family:'SFMono-Regular',Consolas,monospace;font-size:11px;line-height:1.65;resize:vertical;color:var(--text);background:var(--surface-2);margin-top:8px;display:block}
+.cv-txt-area:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,117,255,.15)}
+.cv-field-lbl{font-size:12px;font-weight:600;color:var(--muted);text-align:left;margin-top:20px;letter-spacing:.3px;display:block;text-transform:uppercase}
 </style>
 </head>
 <body>
@@ -243,6 +251,16 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
     <div class="ob-nav">
       <button class="btn btn-secondary" id="ob-back" onclick="obBack()">Back</button>
       <button class="btn btn-primary" id="ob-next" onclick="obNext()">Next</button>
+    </div>
+  </div>
+</div>
+
+<div id="cv-form" style="display:none" class="ob-form-wrap">
+  <div class="ob-card">
+    <div id="cv-step-body"></div>
+    <div class="ob-nav">
+      <button class="btn btn-secondary" id="cv-back" onclick="cvBack()">Back</button>
+      <button class="btn btn-primary" id="cv-next" onclick="cvNext()" style="display:none">Save my CV</button>
     </div>
   </div>
 </div>
@@ -867,7 +885,189 @@ function reviewQueueDraft(id) {
 }
 
 /* ── Onboarding button stubs ── */
-function onboardCv() { /* placeholder — built in a later piece */ }
+/* ── CV-upload onboarding path ── */
+var cvCurrentStep = 0;
+var cvParsed = {};
+var cvAnswers = { name: '', stage: '', skills: [], cvText: '' };
+
+function onboardCv() {
+  document.getElementById('onboarding').style.display = 'none';
+  document.getElementById('cv-form').style.display = 'block';
+  cvCurrentStep = 0;
+  cvRenderStep(0);
+}
+
+function cvBack() {
+  if (cvCurrentStep === 0) {
+    document.getElementById('cv-form').style.display = 'none';
+    document.getElementById('onboarding').style.display = 'block';
+    return;
+  }
+  cvCurrentStep = 0;
+  cvRenderStep(0);
+}
+
+function cvNext() {
+  if (cvCurrentStep === 1) cvSave();
+}
+
+function cvSwitchToQuestions() {
+  document.getElementById('cv-form').style.display = 'none';
+  document.getElementById('ob-form').style.display = 'block';
+  currentStep = 0;
+  obRenderStep(0);
+}
+
+function cvRenderStep(step) {
+  var body = document.getElementById('cv-step-body');
+  var nextBtn = document.getElementById('cv-next');
+  nextBtn.disabled = false;
+
+  if (step === 0) {
+    nextBtn.style.display = 'none';
+    body.innerHTML =
+      '<h2 class="ob-heading">Upload your CV</h2>' +
+      '<p class="ob-sub">We\\'ll pull out the text so you can review it before saving.</p>' +
+      '<label class="cv-upload-area" for="cv-file-inp">' +
+        '<span class="cv-upload-prompt">Click to browse your files</span>' +
+        '<span class="cv-upload-types">.pdf &nbsp;&bull;&nbsp; .docx &nbsp;&bull;&nbsp; .txt &nbsp;&bull;&nbsp; max 2 MB</span>' +
+      '</label>' +
+      '<input type="file" id="cv-file-inp" accept=".pdf,.docx,.txt" style="display:none" onchange="cvHandleFile(this)">' +
+      '<div id="cv-upload-msg"></div>';
+
+  } else if (step === 1) {
+    nextBtn.style.display = '';
+    nextBtn.textContent = 'Save my CV';
+    var stageHtml = '<div class="ob-chips" id="cv-stage-chips">';
+    for (var si = 0; si < OB_STAGES.length; si++) {
+      var sSel = cvAnswers.stage === OB_STAGES[si] ? ' selected' : '';
+      stageHtml += '<button class="ob-chip' + sSel + '" onclick="cvSelectStage(' + si + ')">' + esc(OB_STAGES[si]) + '</button>';
+    }
+    stageHtml += '</div>';
+    var skillsHtml = '<div class="ob-chips" id="cv-skills-chips">';
+    for (var ki = 0; ki < OB_SKILLS.length; ki++) {
+      var kSel = cvAnswers.skills.indexOf(OB_SKILLS[ki]) >= 0 ? ' selected' : '';
+      skillsHtml += '<button class="ob-chip' + kSel + '" onclick="cvToggleSkill(' + ki + ')">' + esc(OB_SKILLS[ki]) + '</button>';
+    }
+    skillsHtml += '</div>';
+    body.innerHTML =
+      '<h2 class="ob-heading">Review what we found</h2>' +
+      '<p class="ob-sub" style="margin-bottom:4px">Edit anything that looks wrong, then save.</p>' +
+      '<span class="cv-field-lbl">Name</span>' +
+      '<input id="cv-name-inp" class="ob-input" type="text" placeholder="Your full name"' +
+        ' value="' + esc(cvAnswers.name || '') + '"' +
+        ' oninput="cvAnswers.name=this.value;cvValidateConfirm()">' +
+      '<span class="cv-field-lbl">Stage</span>' +
+      stageHtml +
+      '<span class="cv-field-lbl">Skills detected</span>' +
+      skillsHtml +
+      '<span class="cv-field-lbl">CV text</span>' +
+      '<textarea id="cv-txt-area" class="cv-txt-area" oninput="cvAnswers.cvText=this.value">' + esc(cvAnswers.cvText) + '</textarea>' +
+      '<div id="cv-save-err" class="ob-err" style="display:none"></div>';
+    cvValidateConfirm();
+  }
+}
+
+function cvValidateConfirm() {
+  var inp = document.getElementById('cv-name-inp');
+  var btn = document.getElementById('cv-next');
+  if (inp && btn) btn.disabled = inp.value.trim().length === 0;
+}
+
+function cvSelectStage(idx) {
+  cvAnswers.stage = OB_STAGES[idx];
+  var cont = document.getElementById('cv-stage-chips');
+  if (!cont) return;
+  var chips = cont.querySelectorAll('.ob-chip');
+  for (var i = 0; i < chips.length; i++) chips[i].classList.toggle('selected', i === idx);
+}
+
+function cvToggleSkill(idx) {
+  var skill = OB_SKILLS[idx];
+  var pos = cvAnswers.skills.indexOf(skill);
+  if (pos >= 0) cvAnswers.skills.splice(pos, 1); else cvAnswers.skills.push(skill);
+  var cont = document.getElementById('cv-skills-chips');
+  if (!cont) return;
+  var chips = cont.querySelectorAll('.ob-chip');
+  for (var i = 0; i < chips.length; i++) chips[i].classList.toggle('selected', cvAnswers.skills.indexOf(OB_SKILLS[i]) >= 0);
+}
+
+function cvHandleFile(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var msgEl = document.getElementById('cv-upload-msg');
+  msgEl.innerHTML = '<p style="margin-top:14px;font-size:13px;color:var(--muted)"><span class="spinner dk"></span> Reading file...</p>';
+  var fd = new FormData();
+  fd.append('file', file);
+  fetch('/parse-cv', { method: 'POST', body: fd })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error || d.warning) {
+        var msg = d.error || d.warning;
+        msgEl.innerHTML =
+          '<p class="ob-err">' + esc(msg) + '</p>' +
+          '<button class="btn btn-secondary" style="margin-top:12px" onclick="cvSwitchToQuestions()">Answer questions instead</button>';
+        return;
+      }
+      cvParsed = d;
+      cvAnswers.name = (d.detected && d.detected.name) ? d.detected.name : '';
+      cvAnswers.stage = (d.detected && d.detected.stage) ? d.detected.stage : '';
+      cvAnswers.skills = (d.detected && d.detected.skills) ? d.detected.skills.slice() : [];
+      cvAnswers.cvText = d.text || '';
+      cvCurrentStep = 1;
+      cvRenderStep(1);
+    })
+    .catch(function() {
+      msgEl.innerHTML =
+        '<p class="ob-err">Could not read the file. Try a different format, or answer questions instead.</p>' +
+        '<button class="btn btn-secondary" style="margin-top:12px" onclick="cvSwitchToQuestions()">Answer questions instead</button>';
+    });
+}
+
+function cvSave() {
+  var nameEl = document.getElementById('cv-name-inp');
+  var txtEl = document.getElementById('cv-txt-area');
+  var errEl = document.getElementById('cv-save-err');
+  var nextBtn = document.getElementById('cv-next');
+  var nameVal = nameEl ? nameEl.value.trim() : '';
+  if (!nameVal) { if (nameEl) nameEl.focus(); return; }
+  var cvText = txtEl ? txtEl.value.trim() : '';
+  nextBtn.disabled = true;
+  nextBtn.textContent = 'Saving...';
+  errEl.style.display = 'none';
+  fetch('/onboard', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: nameVal,
+      stage: cvAnswers.stage,
+      skills: cvAnswers.skills,
+      interests: [],
+      target_locations: [],
+      achievements: [],
+      experience: '',
+      cv_text: cvText
+    })
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.ok || d.error === 'already_onboarded') {
+        document.getElementById('cv-form').style.display = 'none';
+        showDashboard();
+        return;
+      }
+      nextBtn.disabled = false;
+      nextBtn.textContent = 'Save my CV';
+      errEl.textContent = d.error === 'name_required' ? 'Name is required.' : (d.error || 'Something went wrong. Try again.');
+      errEl.style.display = 'block';
+    })
+    .catch(function() {
+      nextBtn.disabled = false;
+      nextBtn.textContent = 'Save my CV';
+      errEl.textContent = 'Network error. Please try again.';
+      errEl.style.display = 'block';
+    });
+}
 
 /* ── Onboarding multi-step form ── */
 
