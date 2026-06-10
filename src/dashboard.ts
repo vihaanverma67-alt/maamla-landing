@@ -216,6 +216,8 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
 .cv-txt-area{width:100%;min-height:220px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-sm);font-family:'SFMono-Regular',Consolas,monospace;font-size:11px;line-height:1.65;resize:vertical;color:var(--text);background:var(--surface-2);margin-top:8px;display:block}
 .cv-txt-area:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,117,255,.15)}
 .cv-field-lbl{font-size:12px;font-weight:600;color:var(--muted);text-align:left;margin-top:20px;letter-spacing:.3px;display:block;text-transform:uppercase}
+#edit-form{max-width:560px}
+#edit-form .ob-card{text-align:left}
 </style>
 </head>
 <body>
@@ -225,6 +227,7 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
   <div class="h-actions">
     <span class="src-badge"><span class="src-dot"></span><span id="src-count">— sources</span></span>
     <button id="btn-collect" class="btn btn-secondary btn-sm" onclick="runCollect()">Collect</button>
+    <button class="btn btn-secondary btn-sm" onclick="openEditProfile()">Profile</button>
     <button id="btn-rerank" class="btn btn-primary btn-sm" onclick="runRerank()">Re-rank</button>
   </div>
   <span id="status" class="status"></span>
@@ -261,6 +264,17 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
     <div class="ob-nav">
       <button class="btn btn-secondary" id="cv-back" onclick="cvBack()">Back</button>
       <button class="btn btn-primary" id="cv-next" onclick="cvNext()" style="display:none">Save my CV</button>
+    </div>
+  </div>
+</div>
+
+<div id="edit-form" style="display:none" class="ob-form-wrap">
+  <div class="ob-card">
+    <h2 class="ob-heading">Edit your profile</h2>
+    <div id="edit-form-body"></div>
+    <div class="ob-nav">
+      <button class="btn btn-secondary" onclick="closeEditProfile()">Cancel</button>
+      <button class="btn btn-primary" id="edit-save-btn" onclick="editProfileSave()">Save changes</button>
     </div>
   </div>
 </div>
@@ -1051,7 +1065,12 @@ function cvSave() {
   })
     .then(function(r) { return r.json(); })
     .then(function(d) {
-      if (d.ok || d.error === 'already_onboarded') {
+      if (d.ok) {
+        document.getElementById('cv-form').style.display = 'none';
+        showDashboardAfterOnboard();
+        return;
+      }
+      if (d.error === 'already_onboarded') {
         document.getElementById('cv-form').style.display = 'none';
         showDashboard();
         return;
@@ -1064,6 +1083,183 @@ function cvSave() {
     .catch(function() {
       nextBtn.disabled = false;
       nextBtn.textContent = 'Save my CV';
+      errEl.textContent = 'Network error. Please try again.';
+      errEl.style.display = 'block';
+    });
+}
+
+/* ── Profile edit ── */
+var editStage = '';
+var editSkills = [];
+var editInterests = [];
+var editLocs = [];
+
+function openEditProfile() {
+  fetch('/profile')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) return;
+      editStage = d.stage || '';
+      editSkills = (d.skills || []).slice();
+      editInterests = (d.interests || []).slice();
+      editLocs = (d.target_locations || []).slice();
+      if (mainEl) mainEl.style.display = 'none';
+      document.getElementById('edit-form').style.display = 'block';
+      editFormRender(d.name || '', d.experience || '');
+    })
+    .catch(function() {});
+}
+
+function closeEditProfile() {
+  document.getElementById('edit-form').style.display = 'none';
+  if (mainEl) mainEl.style.display = '';
+}
+
+function editLocsHtml() {
+  var h = '<div class="ob-chips" id="edit-locs-chips">';
+  for (var li = 0; li < OB_LOCATIONS.length; li++) {
+    var lSel = editLocs.indexOf(OB_LOCATIONS[li]) >= 0 ? ' selected' : '';
+    h += '<button class="ob-chip' + lSel + '" onclick="editToggleLoc(' + li + ')">' + esc(OB_LOCATIONS[li]) + '</button>';
+  }
+  for (var ci = 0; ci < editLocs.length; ci++) {
+    if (OB_LOCATIONS.indexOf(editLocs[ci]) < 0) {
+      h += '<button class="ob-chip selected" onclick="editRemoveLoc(' + ci + ')">' + esc(editLocs[ci]) + ' &times;</button>';
+    }
+  }
+  h += '</div>' +
+    '<div style="display:flex;gap:8px;margin-top:8px">' +
+      '<input id="edit-loc-inp" class="ob-input" style="margin-top:0;flex:1" type="text" placeholder="Add a city">' +
+      '<button class="btn btn-secondary btn-sm" onclick="editAddLoc()">Add</button>' +
+    '</div>';
+  return h;
+}
+
+function editFormRender(nameVal, expVal) {
+  var body = document.getElementById('edit-form-body');
+  var stageHtml = '<div class="ob-chips" id="edit-stage-chips">';
+  for (var si = 0; si < OB_STAGES.length; si++) {
+    var sSel = editStage === OB_STAGES[si] ? ' selected' : '';
+    stageHtml += '<button class="ob-chip' + sSel + '" onclick="editSelectStage(' + si + ')">' + esc(OB_STAGES[si]) + '</button>';
+  }
+  stageHtml += '</div>';
+  var skillsHtml = '<div class="ob-chips" id="edit-skills-chips">';
+  for (var ki = 0; ki < OB_SKILLS.length; ki++) {
+    var kSel = editSkills.indexOf(OB_SKILLS[ki]) >= 0 ? ' selected' : '';
+    skillsHtml += '<button class="ob-chip' + kSel + '" onclick="editToggleSkill(' + ki + ')">' + esc(OB_SKILLS[ki]) + '</button>';
+  }
+  skillsHtml += '</div>';
+  var interestsHtml = '<div class="ob-chips" id="edit-interests-chips">';
+  for (var ii = 0; ii < OB_INTERESTS.length; ii++) {
+    var iSel = editInterests.indexOf(OB_INTERESTS[ii]) >= 0 ? ' selected' : '';
+    interestsHtml += '<button class="ob-chip' + iSel + '" onclick="editToggleInterest(' + ii + ')">' + esc(OB_INTERESTS[ii]) + '</button>';
+  }
+  interestsHtml += '</div>';
+  body.innerHTML =
+    '<span class="cv-field-lbl">Name</span>' +
+    '<input id="edit-name-inp" class="ob-input" type="text" value="' + esc(nameVal) + '" placeholder="Your full name">' +
+    '<span class="cv-field-lbl">Stage</span>' +
+    stageHtml +
+    '<span class="cv-field-lbl">Skills</span>' +
+    skillsHtml +
+    '<span class="cv-field-lbl">Interests</span>' +
+    interestsHtml +
+    '<span class="cv-field-lbl">Target locations</span>' +
+    '<div id="edit-locs-wrap">' + editLocsHtml() + '</div>' +
+    '<span class="cv-field-lbl">Experience</span>' +
+    '<textarea id="edit-exp-ta" class="cv-txt-area" style="min-height:80px" placeholder="Brief description of work experience">' + esc(expVal) + '</textarea>' +
+    '<div id="edit-save-err" class="ob-err" style="display:none"></div>';
+}
+
+function editSelectStage(idx) {
+  editStage = OB_STAGES[idx];
+  var cont = document.getElementById('edit-stage-chips');
+  if (!cont) return;
+  var chips = cont.querySelectorAll('.ob-chip');
+  for (var i = 0; i < chips.length; i++) chips[i].classList.toggle('selected', i === idx);
+}
+
+function editToggleSkill(idx) {
+  var skill = OB_SKILLS[idx];
+  var pos = editSkills.indexOf(skill);
+  if (pos >= 0) editSkills.splice(pos, 1); else editSkills.push(skill);
+  var cont = document.getElementById('edit-skills-chips');
+  if (!cont) return;
+  var chips = cont.querySelectorAll('.ob-chip');
+  for (var i = 0; i < chips.length; i++) chips[i].classList.toggle('selected', editSkills.indexOf(OB_SKILLS[i]) >= 0);
+}
+
+function editToggleInterest(idx) {
+  var interest = OB_INTERESTS[idx];
+  var pos = editInterests.indexOf(interest);
+  if (pos >= 0) editInterests.splice(pos, 1); else editInterests.push(interest);
+  var cont = document.getElementById('edit-interests-chips');
+  if (!cont) return;
+  var chips = cont.querySelectorAll('.ob-chip');
+  for (var i = 0; i < chips.length; i++) chips[i].classList.toggle('selected', editInterests.indexOf(OB_INTERESTS[i]) >= 0);
+}
+
+function editToggleLoc(idx) {
+  var loc = OB_LOCATIONS[idx];
+  var pos = editLocs.indexOf(loc);
+  if (pos >= 0) editLocs.splice(pos, 1); else editLocs.push(loc);
+  var wrap = document.getElementById('edit-locs-wrap');
+  if (wrap) wrap.innerHTML = editLocsHtml();
+}
+
+function editAddLoc() {
+  var inp = document.getElementById('edit-loc-inp');
+  var val = inp ? inp.value.trim() : '';
+  if (!val || editLocs.indexOf(val) >= 0) { if (inp) inp.value = ''; return; }
+  editLocs.push(val);
+  var wrap = document.getElementById('edit-locs-wrap');
+  if (wrap) wrap.innerHTML = editLocsHtml();
+}
+
+function editRemoveLoc(idx) {
+  editLocs.splice(idx, 1);
+  var wrap = document.getElementById('edit-locs-wrap');
+  if (wrap) wrap.innerHTML = editLocsHtml();
+}
+
+function editProfileSave() {
+  var nameEl = document.getElementById('edit-name-inp');
+  var expEl = document.getElementById('edit-exp-ta');
+  var errEl = document.getElementById('edit-save-err');
+  var saveBtn = document.getElementById('edit-save-btn');
+  var nameVal = nameEl ? nameEl.value.trim() : '';
+  if (!nameVal) { if (nameEl) nameEl.focus(); return; }
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving...';
+  errEl.style.display = 'none';
+  fetch('/profile', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: nameVal,
+      stage: editStage,
+      skills: editSkills,
+      interests: editInterests,
+      target_locations: editLocs,
+      experience: expEl ? expEl.value.trim() : ''
+    })
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.ok) {
+        closeEditProfile();
+        fetch('/rank', { method: 'POST' })
+          .then(function() { return Promise.all([loadOpps(), loadCvAnalysis()]); })
+          .catch(function() {});
+        return;
+      }
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save changes';
+      errEl.textContent = d.error === 'name_required' ? 'Name is required.' : (d.error || 'Something went wrong. Try again.');
+      errEl.style.display = 'block';
+    })
+    .catch(function() {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save changes';
       errEl.textContent = 'Network error. Please try again.';
       errEl.style.display = 'block';
     });
@@ -1526,7 +1722,7 @@ function obSubmit() {
   .then(function(res) {
     if (res.status === 200 && res.body.ok) {
       document.getElementById('ob-form').style.display = 'none';
-      showDashboard();
+      showDashboardAfterOnboard();
     } else if (res.status === 409 && res.body.error === 'already_onboarded') {
       document.getElementById('ob-form').style.display = 'none';
       showStatus('You already have a profile');
@@ -1554,6 +1750,22 @@ if (mainEl) mainEl.style.display = 'none';
 function showDashboard() {
   if (mainEl) mainEl.style.display = '';
   Promise.all([loadOpps(), loadCvAnalysis(), loadSources(), loadCvText(), loadQueue()]);
+}
+
+function showDashboardAfterOnboard() {
+  if (mainEl) mainEl.style.display = '';
+  Promise.all([loadCvAnalysis(), loadSources(), loadCvText(), loadQueue()]);
+  setBtn('btn-rerank', true, 'Ranking...');
+  fetch('/rank', { method: 'POST' })
+    .then(function() {
+      setBtn('btn-rerank', false, 'Re-rank');
+      showStatus('Ranked! Opportunities scored for your profile.');
+      return loadOpps();
+    })
+    .catch(function() {
+      setBtn('btn-rerank', false, 'Re-rank');
+      return loadOpps();
+    });
 }
 
 (function() {

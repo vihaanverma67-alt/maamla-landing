@@ -56,13 +56,6 @@ export default {
 				});
 			}
 
-			// GET /whoami — temporary: confirms Access identity is readable (remove before prod)
-			if (method === 'GET' && path === '/whoami') {
-				const email = await getVerifiedUserEmail(request, env);
-				if (email) return json({ email });
-				return json({ email: null, note: 'No valid Access token. Visit via the protected subdomain.' });
-			}
-
 			// GET /me — identity + onboarding status
 			if (method === 'GET' && path === '/me') {
 				const email = await resolveEmail(request, env);
@@ -188,6 +181,56 @@ export default {
 				const detected = text ? detectFromText(text) : { name: null, stage: null, skills: [] };
 
 				return json({ text, detected, warning });
+			}
+
+			// GET /profile — return structured profile fields for the logged-in user
+			if (method === 'GET' && path === '/profile') {
+				const email = await resolveEmail(request, env);
+				if (!email) return json({ error: 'not_authenticated' }, 401);
+				const row = await db
+					.prepare('SELECT name, stage, skills, interests, target_locations, experience FROM profile WHERE user_email = ?')
+					.bind(email)
+					.first<{ name: string; stage: string; skills: string; interests: string; target_locations: string; experience: string }>();
+				if (!row) return json({ error: 'no_profile' });
+				return json({
+					name: row.name,
+					stage: row.stage ?? '',
+					skills: JSON.parse(row.skills ?? '[]'),
+					interests: JSON.parse(row.interests ?? '[]'),
+					target_locations: JSON.parse(row.target_locations ?? '[]'),
+					experience: row.experience ?? '',
+				});
+			}
+
+			// PATCH /profile — update structured profile fields (does not touch cv_text — use POST /cv for that)
+			if (method === 'PATCH' && path === '/profile') {
+				const email = await resolveEmail(request, env);
+				if (!email) return json({ error: 'not_authenticated' }, 401);
+				const existing = await db
+					.prepare('SELECT user_email FROM profile WHERE user_email = ?')
+					.bind(email)
+					.first();
+				if (!existing) return json({ error: 'no_profile' }, 404);
+				const body = (await request.json()) as {
+					name?: unknown;
+					stage?: unknown;
+					skills?: unknown;
+					interests?: unknown;
+					target_locations?: unknown;
+					experience?: unknown;
+				};
+				const name = typeof body.name === 'string' ? body.name.trim() : '';
+				if (!name) return json({ error: 'name_required' }, 400);
+				const stage      = typeof body.stage === 'string' ? body.stage.trim() : '';
+				const skills     = Array.isArray(body.skills)            ? (body.skills as string[]) : [];
+				const interests  = Array.isArray(body.interests)         ? (body.interests as string[]) : [];
+				const targetLocs = Array.isArray(body.target_locations)  ? (body.target_locations as string[]) : [];
+				const experience = typeof body.experience === 'string' ? body.experience.trim() : '';
+				await db
+					.prepare('UPDATE profile SET name = ?, stage = ?, skills = ?, interests = ?, target_locations = ?, experience = ?, updated_at = ? WHERE user_email = ?')
+					.bind(name, stage, JSON.stringify(skills), JSON.stringify(interests), JSON.stringify(targetLocs), experience || null, now(), email)
+					.run();
+				return json({ ok: true });
 			}
 
 			// POST /sources/bulk — must come before POST /sources
