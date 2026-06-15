@@ -317,6 +317,15 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
       <div id="conf-list" class="opp-list"></div>
     </div>
 
+    <div class="group">
+      <div class="group-hd">
+        <h3 class="group-label">Certificates &amp; Courses</h3>
+        <span class="group-divider"></span>
+        <span class="group-count" id="cert-count">&#8212;</span>
+      </div>
+      <div id="cert-list" class="opp-list"></div>
+    </div>
+
     <!-- ── Application Queue ── -->
     <div class="group">
       <div class="group-hd">
@@ -482,11 +491,12 @@ function buildCard(o) {
 var sectionState = {
   india:  { offset: 0, total: 0, loaded: 0 },
   global: { offset: 0, total: 0, loaded: 0 },
-  conf:   { offset: 0, total: 0, loaded: 0 }
+  conf:   { offset: 0, total: 0, loaded: 0 },
+  cert:   { offset: 0, total: 0, loaded: 0 }
 };
 
 function updateTotalMeta() {
-  var t = sectionState.india.total + sectionState.global.total + sectionState.conf.total;
+  var t = sectionState.india.total + sectionState.global.total + sectionState.conf.total + sectionState.cert.total;
   document.getElementById('opp-meta').textContent = t + ' total';
 }
 
@@ -555,10 +565,12 @@ function loadOpps() {
   sectionState.india  = { offset: 0, total: 0, loaded: 0 };
   sectionState.global = { offset: 0, total: 0, loaded: 0 };
   sectionState.conf   = { offset: 0, total: 0, loaded: 0 };
+  sectionState.cert   = { offset: 0, total: 0, loaded: 0 };
   return Promise.all([
     loadSection('india',  'india-list',  'india-count',  false),
     loadSection('global', 'global-list', 'global-count', false),
     loadSection('conf',   'conf-list',   'conf-count',   false),
+    loadSection('cert',   'cert-list',   'cert-count',   false),
   ]);
 }
 

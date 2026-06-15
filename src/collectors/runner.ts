@@ -3,6 +3,7 @@ import { collectGreenhouse } from './greenhouse';
 import { collectLever } from './lever';
 import { collectRss } from './rss';
 import { collectConfstech } from './confstech';
+import { collectCertificates } from './certificates';
 
 export async function runAllSources(db: D1Database): Promise<RunResult> {
 	const { results: sources } = await db.prepare('SELECT * FROM sources WHERE active = 1').all<SourceRow>();
@@ -43,6 +44,18 @@ export async function runAllSources(db: D1Database): Promise<RunResult> {
 		totals.skipped += confsResult.skipped;
 	} catch (err) {
 		perSource.push({ source_id: 0, ats_type: 'confstech', token: '', label: 'confs.tech', fetched: 0, kept: 0, inserted: 0, skipped: 0, error: String(err) });
+	}
+
+	// certificates runs unconditionally — static curated catalog
+	try {
+		const certResult = await collectCertificates(db);
+		perSource.push({ source_id: 0, ats_type: 'curated', token: '', label: 'certificates', ...certResult });
+		totals.fetched += certResult.fetched;
+		totals.kept += certResult.kept;
+		totals.inserted += certResult.inserted;
+		totals.skipped += certResult.skipped;
+	} catch (err) {
+		perSource.push({ source_id: 0, ats_type: 'curated', token: '', label: 'certificates', fetched: 0, kept: 0, inserted: 0, skipped: 0, error: String(err) });
 	}
 
 	return { perSource, totals };

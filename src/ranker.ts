@@ -1,11 +1,12 @@
 // ─── Scoring weights — edit these to tune the ranker ────────────────────────
-// All positive weights sum to 100 so scores are already on a 0-100 scale
-// before the seniority penalty. Clamp keeps the final value in [0, 100].
+// Positive weights for internships sum to 100; certificates add a skill weight
+// on top (clamped to 100 by Math.min at the end).
 const WEIGHTS = {
 	earlyCareer:   40,  // title/desc contains intern/entry/junior/graduate etc.
 	interest:      25,  // title/desc overlaps CS & tech interest buckets
 	location:      20,  // location field mentions a target location
 	typePriority:  15,  // opportunity type alignment with the priorities list
+	skill:         20,  // profile skill matches certificate topic (certs only)
 	seniority:    -30,  // PENALTY: title signals senior/lead/staff/experienced
 } as const;
 
@@ -29,6 +30,15 @@ const INTEREST_BUCKETS: RegExp[] = [
 	/\btech\b|technology|cloud|devops|security|cybersecurity|backend|frontend|full.?stack|platform|infrastructure/i,
 ];
 
+// Profile skill → certificate topic keyword mapping (certificates only)
+const SKILL_CERT_BUCKETS: Array<[string[], RegExp]> = [
+	[['Programming'], /programming|coding|software|algorithm|development|python|javascript|java|web|backend|frontend|sql|node/i],
+	[['Research'], /research|data\s*science|analytics|machine\s+learning|statistics|analysis|jupyter|pandas/i],
+	[['Design'], /ux|user\s+experience|ui\s+design|prototype|figma|design/i],
+	[['Leadership'], /project\s+management|leadership|agile|scrum|management/i],
+	[['Writing'], /writing|content|documentation|technical\s+writing/i],
+];
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface OpportunityForRanking {
@@ -41,6 +51,7 @@ export interface OpportunityForRanking {
 export interface ProfileForRanking {
 	target_locations: string[];
 	priorities: string[];  // ordered list of opportunity types, highest priority first
+	skills?: string[];     // profile skill chips, used for certificate matching
 }
 
 export interface ScoreResult {
@@ -78,9 +89,10 @@ export function scoreOpportunity(opp: OpportunityForRanking, profile: ProfileFor
 	}
 
 	// ── Location match ───────────────────────────────────────────────────────
+	// "Online" is treated as equivalent to "remote" since certificates are online-only.
 	const locationHit = profile.target_locations.some((tl) => {
 		const t = tl.toLowerCase();
-		if (t === 'remote') return locText.includes('remote') || locText.includes('anywhere') || locText.includes('work from home');
+		if (t === 'remote') return locText.includes('remote') || locText.includes('anywhere') || locText.includes('work from home') || locText.includes('online');
 		if (t === 'global') return locText.includes('global') || locText.includes('worldwide');
 		return locText.includes(t);
 	});
@@ -97,6 +109,18 @@ export function scoreOpportunity(opp: OpportunityForRanking, profile: ProfileFor
 		const pts = Math.round(((n - priorityIndex) / n) * WEIGHTS.typePriority);
 		raw += pts;
 		if (pts > 0) reasons.push(opp.type);
+	}
+
+	// ── Skill match (certificates only) ──────────────────────────────────────
+	// Check if any of the user's profile skills maps to this certificate's topic.
+	if (opp.type === 'certificate' && profile.skills && profile.skills.length > 0) {
+		const skillHit = SKILL_CERT_BUCKETS.some(
+			([skillNames, re]) => skillNames.some((s) => profile.skills!.includes(s)) && re.test(fullText),
+		);
+		if (skillHit) {
+			raw += WEIGHTS.skill;
+			reasons.push('skill match');
+		}
 	}
 
 	const score = Math.min(100, Math.max(0, Math.round(raw)));

@@ -291,15 +291,16 @@ export default {
 				if (!email) return json({ error: 'not_authenticated' }, 401);
 
 				const profileRow = await db
-					.prepare('SELECT target_locations, priorities FROM profile WHERE user_email = ?')
+					.prepare('SELECT target_locations, priorities, skills FROM profile WHERE user_email = ?')
 					.bind(email)
-					.first<{ target_locations: string; priorities: string }>();
+					.first<{ target_locations: string; priorities: string; skills: string }>();
 
 				if (!profileRow) return json({ error: 'no_profile', note: 'User has not onboarded yet' });
 
 				const profile: ProfileForRanking = {
 					target_locations: JSON.parse(profileRow.target_locations ?? '[]'),
 					priorities:       JSON.parse(profileRow.priorities ?? '[]'),
+					skills:           JSON.parse(profileRow.skills ?? '[]'),
 				};
 
 				const { results: opps } = await db
@@ -331,7 +332,8 @@ export default {
 				const SECTION_WHERE: Record<string, string> = {
 					india:  "o.type = 'internship' AND o.region = 'india'",
 					global: "o.type = 'internship' AND o.region != 'india'",
-					conf:   "o.type != 'internship'",
+					conf:   "o.type IN ('conference', 'ngo')",
+					cert:   "o.type = 'certificate'",
 				};
 
 				const whereClause = section && SECTION_WHERE[section]
