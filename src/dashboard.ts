@@ -289,7 +289,7 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
       <div id="opp-meta" class="sec-meta"></div>
     </div>
 
-    <div class="group">
+    <div class="group" id="section-india">
       <div class="group-hd">
         <h3 class="group-label">Internships &#8212; India</h3>
         <span class="group-divider"></span>
@@ -300,7 +300,7 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
       </div>
     </div>
 
-    <div class="group">
+    <div class="group" id="section-global">
       <div class="group-hd">
         <h3 class="group-label">Internships &#8212; Global / Remote</h3>
         <span class="group-divider"></span>
@@ -309,7 +309,7 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
       <div id="global-list" class="opp-list"></div>
     </div>
 
-    <div class="group">
+    <div class="group" id="section-conf">
       <div class="group-hd">
         <h3 class="group-label">Conferences &amp; Competitions</h3>
         <span class="group-divider"></span>
@@ -318,7 +318,7 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
       <div id="conf-list" class="opp-list"></div>
     </div>
 
-    <div class="group">
+    <div class="group" id="section-cert">
       <div class="group-hd">
         <h3 class="group-label">Certificates &amp; Courses</h3>
         <span class="group-divider"></span>
@@ -327,7 +327,7 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
       <div id="cert-list" class="opp-list"></div>
     </div>
 
-    <div class="group">
+    <div class="group" id="section-ngo">
       <div class="group-hd">
         <h3 class="group-label">NGOs &amp; Volunteering</h3>
         <span class="group-divider"></span>
@@ -355,7 +355,7 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
   </section>
 
   <!-- ── Right: CV analysis + editor ── -->
-  <aside class="cv-panel">
+  <aside class="cv-panel" id="section-cv">
 
     <!-- CV Analysis -->
     <div>
@@ -1773,9 +1773,23 @@ function obSubmit() {
 var mainEl = document.querySelector('main.main');
 if (mainEl) mainEl.style.display = 'none';
 
+function scrollToHash() {
+  var h = window.location.hash.replace('#', '');
+  var map = { india: 'section-india', global: 'section-global', internships: 'section-india',
+               conf: 'section-conf', cert: 'section-cert', ngo: 'section-ngo',
+               cv: 'cv-analysis-panel', certificates: 'section-cert', ngos: 'section-ngo' };
+  var target = map[h] || (h ? h : null);
+  if (!target) return;
+  setTimeout(function() {
+    var el = document.getElementById(target);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 800);
+}
+
 function showDashboard() {
   if (mainEl) mainEl.style.display = '';
   Promise.all([loadOpps(), loadCvAnalysis(), loadSources(), loadCvText(), loadQueue()]);
+  scrollToHash();
 }
 
 function showDashboardAfterOnboard() {
