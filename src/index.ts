@@ -7,6 +7,7 @@ import { classifyRegion, now } from './collectors/utils';
 import { generateDraft } from './drafter';
 import { getVerifiedUserEmail } from './auth';
 import { parseCv, detectFromText } from './cv-parser';
+import { landingHtml } from './landing';
 
 function json(data: unknown, status = 200): Response {
 	return new Response(JSON.stringify(data), {
@@ -49,6 +50,13 @@ export default {
 		const segments = path.split('/').filter(Boolean);
 
 		try {
+			// GET / on maamla.ai (no subdomain) — landing page, no auth required
+			if (method === 'GET' && path === '' && url.hostname === 'maamla.ai') {
+				return new Response(landingHtml(), {
+					headers: { 'Content-Type': 'text/html;charset=UTF-8' },
+				});
+			}
+
 			// GET / — dashboard
 			if (method === 'GET' && path === '') {
 				return new Response(getDashboardHtml(), {

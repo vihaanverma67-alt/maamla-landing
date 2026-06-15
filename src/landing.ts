@@ -1,0 +1,278 @@
+export function landingHtml(): string {
+	return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="CV Engine — discover internships, certificates, NGOs and conferences ranked for your profile." />
+  <title>maamla.ai — CV Engine</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:#080810;--surface:#0F0F1A;--surface2:#16162A;--border:#1E1E38;--border2:#2A2A4A;
+      --text:#E8E8F4;--muted:#888899;--subtle:#444466;
+      --purple:#7C6FFF;--purple-bg:#1A1640;--purple-glow:rgba(124,111,255,.18);
+      --green:#22D49A;--green-bg:#0A2A1E;--green-glow:rgba(34,212,154,.16);
+      --blue:#60AAFF;--blue-bg:#0A1A38;--blue-glow:rgba(96,170,255,.16);
+      --pink:#FF7EBA;--pink-bg:#28101E;
+      --r:18px;--r-sm:12px;
+    }
+    html { scroll-behavior:smooth; }
+    body {
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+      background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;
+    }
+    .orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+    .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.45;animation:drift linear infinite;}
+    .orb-1{width:520px;height:520px;background:radial-gradient(circle,#5B4FD4 0%,transparent 70%);top:-120px;left:-100px;animation-duration:22s;}
+    .orb-2{width:480px;height:480px;background:radial-gradient(circle,#0F8B5A 0%,transparent 70%);bottom:-100px;right:-80px;animation-duration:28s;animation-delay:-9s;}
+    .orb-3{width:360px;height:360px;background:radial-gradient(circle,#1A3A7A 0%,transparent 70%);top:45%;left:55%;animation-duration:34s;animation-delay:-16s;}
+    @keyframes drift{0%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-30px) scale(1.06)}66%{transform:translate(-25px,20px) scale(.95)}100%{transform:translate(0,0) scale(1)}}
+    .page{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:0 24px 80px;}
+    header{display:flex;align-items:center;justify-content:space-between;padding:28px 0 48px;}
+    .logo-wrap{display:flex;align-items:center;gap:12px;}
+    .logo-mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#7C6FFF,#4AAFFF);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;letter-spacing:-1px;box-shadow:0 0 20px rgba(124,111,255,.4);}
+    .logo-text{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
+    .logo-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+    .btn-launch{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:100px;font-size:13px;font-weight:600;background:linear-gradient(135deg,#7C6FFF,#4AAFFF);color:#fff;text-decoration:none;border:none;cursor:pointer;transition:opacity .15s,transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(124,111,255,.35);}
+    .btn-launch:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 6px 28px rgba(124,111,255,.45);}
+    .hero{text-align:center;padding-bottom:56px;}
+    .hero-eyebrow{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:100px;background:var(--purple-bg);border:1px solid rgba(124,111,255,.3);font-size:11px;font-weight:600;color:var(--purple);letter-spacing:.5px;text-transform:uppercase;margin-bottom:22px;}
+    .hero-eyebrow .dot{width:6px;height:6px;background:var(--purple);border-radius:50%;animation:pulse-dot 2s ease-in-out infinite;}
+    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+    .hero h1{font-size:clamp(36px,6vw,68px);font-weight:800;line-height:1.08;letter-spacing:-2px;color:var(--text);margin-bottom:18px;}
+    .hero h1 .grad{background:linear-gradient(90deg,#7C6FFF 0%,#60AAFF 40%,#22D49A 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hero-sub{font-size:clamp(15px,2vw,18px);color:var(--muted);max-width:520px;margin:0 auto 34px;line-height:1.6;}
+    .stats{display:flex;align-items:center;justify-content:center;gap:32px;margin-bottom:56px;flex-wrap:wrap;}
+    .stat{text-align:center;}
+    .stat-n{font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--text);}
+    .stat-l{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.3px;margin-top:2px;}
+    .stat-divider{width:1px;height:36px;background:var(--border);}
+    .bento{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;}
+    .tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s;cursor:pointer;}
+    .tile:hover{transform:translateY(-3px);}
+    .tile::before{content:'';position:absolute;inset:0;border-radius:var(--r);opacity:0;transition:opacity .25s;}
+    .tile:hover::before{opacity:1;}
+    .tile-intern{grid-column:span 7;}
+    .tile-cert{grid-column:span 5;}
+    .tile-cv{grid-column:span 5;}
+    .tile-ngo{grid-column:span 7;}
+    .tile-ai{grid-column:span 12;cursor:default;}
+    .tile-intern{border-color:rgba(124,111,255,.25);}
+    .tile-intern::before{background:radial-gradient(ellipse at top left,rgba(124,111,255,.06) 0%,transparent 60%);}
+    .tile-intern:hover{border-color:rgba(124,111,255,.5);box-shadow:0 8px 48px var(--purple-glow);}
+    .tile-cert{border-color:rgba(96,170,255,.2);}
+    .tile-cert::before{background:radial-gradient(ellipse at top right,rgba(96,170,255,.06) 0%,transparent 60%);}
+    .tile-cert:hover{border-color:rgba(96,170,255,.45);box-shadow:0 8px 48px var(--blue-glow);}
+    .tile-cv{border-color:rgba(124,111,255,.2);}
+    .tile-cv::before{background:radial-gradient(ellipse at bottom left,rgba(124,111,255,.07) 0%,transparent 60%);}
+    .tile-cv:hover{border-color:rgba(124,111,255,.45);box-shadow:0 8px 48px rgba(124,111,255,.18);}
+    .tile-ngo{border-color:rgba(34,212,154,.2);}
+    .tile-ngo::before{background:radial-gradient(ellipse at bottom right,rgba(34,212,154,.06) 0%,transparent 60%);}
+    .tile-ngo:hover{border-color:rgba(34,212,154,.45);box-shadow:0 8px 48px var(--green-glow);}
+    .tile-ai{border-color:rgba(255,126,186,.15);opacity:.75;}
+    .tile-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
+    .tile-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+    .icon-intern{background:var(--purple-bg);border:1px solid rgba(124,111,255,.25);}
+    .icon-cert{background:var(--blue-bg);border:1px solid rgba(96,170,255,.25);}
+    .icon-cv{background:var(--purple-bg);border:1px solid rgba(124,111,255,.25);}
+    .icon-ngo{background:var(--green-bg);border:1px solid rgba(34,212,154,.25);}
+    .icon-ai{background:var(--pink-bg);border:1px solid rgba(255,126,186,.2);}
+    .tile-badge{padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;}
+    .badge-purple{background:var(--purple-bg);color:var(--purple);border:1px solid rgba(124,111,255,.25);}
+    .badge-blue{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(96,170,255,.25);}
+    .badge-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(34,212,154,.25);}
+    .badge-pink{background:var(--pink-bg);color:var(--pink);border:1px solid rgba(255,126,186,.2);}
+    .tile-title{font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--text);margin-bottom:6px;line-height:1.2;}
+    .tile-desc{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:18px;}
+    .tile-arrow{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--muted);transition:color .15s,gap .15s;}
+    .tile:hover .tile-arrow{gap:8px;}
+    .sub-tiles{display:none;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;}
+    .tile-intern.expanded .sub-tiles{display:grid;}
+    .tile-intern.expanded .tile-arrow-wrap{display:none;}
+    .sub-tile{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 10px;border-radius:12px;text-decoration:none;background:var(--surface2);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text);transition:border-color .15s,background .15s,transform .15s;}
+    .sub-tile:hover{border-color:rgba(124,111,255,.45);background:var(--purple-bg);transform:translateY(-2px);}
+    .sub-tile .sub-icon{font-size:22px;}
+    .sub-tile .sub-hint{font-size:10px;color:var(--muted);font-weight:400;text-align:center;}
+    .cv-links{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+    .cv-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-sm);text-decoration:none;color:var(--text);background:var(--surface2);border:1px solid var(--border);font-size:12px;font-weight:500;transition:border-color .15s,background .15s;}
+    .cv-link:hover{border-color:rgba(124,111,255,.4);background:var(--purple-bg);}
+    .cv-link .cl-icon{width:28px;height:28px;border-radius:7px;background:var(--purple-bg);border:1px solid rgba(124,111,255,.2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+    .cv-link .cl-label{flex:1;}
+    .cv-link .cl-arr{color:var(--subtle);font-size:14px;}
+    .coming-soon{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+    .cs-left{display:flex;align-items:center;gap:20px;}
+    .cs-icon{width:52px;height:52px;border-radius:14px;background:var(--pink-bg);border:1px solid rgba(255,126,186,.2);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+    .cs-text h3{font-size:20px;font-weight:800;letter-spacing:-.4px;color:var(--text);}
+    .cs-text p{font-size:13px;color:var(--muted);margin-top:4px;}
+    .cs-soon{display:flex;align-items:center;gap:8px;}
+    .progress-track{width:160px;height:5px;background:var(--surface2);border-radius:100px;overflow:hidden;}
+    .progress-fill{height:100%;width:30%;border-radius:100px;background:linear-gradient(90deg,var(--pink),rgba(255,126,186,.3));animation:shimmer 2s ease-in-out infinite;}
+    @keyframes shimmer{0%,100%{opacity:1}50%{opacity:.6}}
+    .cs-pct{font-size:11px;color:var(--pink);font-weight:700;white-space:nowrap;}
+    .tile-glow{position:absolute;width:200px;height:200px;border-radius:50%;filter:blur(60px);pointer-events:none;opacity:.12;transition:opacity .3s;}
+    .tile:hover .tile-glow{opacity:.22;}
+    .glow-purple{background:var(--purple);top:-60px;left:-60px;}
+    .glow-blue{background:var(--blue);top:-60px;right:-60px;}
+    .glow-green{background:var(--green);bottom:-60px;right:-60px;}
+    .glow-pink{background:var(--pink);bottom:-40px;left:-40px;}
+    footer{text-align:center;padding-top:60px;font-size:12px;color:var(--subtle);display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;}
+    footer a{color:var(--muted);text-decoration:none;}
+    footer a:hover{color:var(--text);}
+    .footer-dot{color:var(--border2);}
+    @media(max-width:760px){
+      header{flex-direction:column;gap:16px;text-align:center;padding-bottom:36px;}
+      .bento{grid-template-columns:1fr;gap:12px;}
+      .tile-intern,.tile-cert,.tile-cv,.tile-ngo,.tile-ai{grid-column:span 1;}
+      .sub-tiles{grid-template-columns:1fr;}
+      .coming-soon{flex-direction:column;align-items:flex-start;}
+    }
+    @media(max-width:960px) and (min-width:761px){
+      .bento{grid-template-columns:repeat(2,1fr);}
+      .tile-intern,.tile-ngo{grid-column:span 2;}
+      .tile-ai{grid-column:span 2;}
+    }
+  </style>
+</head>
+<body>
+<div class="orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+<div class="page">
+  <header>
+    <div class="logo-wrap">
+      <div class="logo-mark">m</div>
+      <div>
+        <div class="logo-text">maamla.ai</div>
+        <div class="logo-sub">Opportunity Engine</div>
+      </div>
+    </div>
+    <a href="https://cvengine.maamla.ai" class="btn-launch">Open Dashboard &#8599;</a>
+  </header>
+  <section class="hero">
+    <div class="hero-eyebrow"><span class="dot"></span>Built for undergrads in India</div>
+    <h1>Your opportunities,<br><span class="grad">ranked for you.</span></h1>
+    <p class="hero-sub">Internships, certificates, NGOs and conferences &mdash; all discovered automatically and scored against your profile. Human&#8209;in&#8209;the&#8209;loop. Always free.</p>
+  </section>
+  <div class="stats">
+    <div class="stat"><div class="stat-n">146</div><div class="stat-l">Internship listings</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-n">60</div><div class="stat-l">Free certificates</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-n">45</div><div class="stat-l">NGO programmes</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-n">121</div><div class="stat-l">Conferences</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-n">&#8734;</div><div class="stat-l">Ranked for your CV</div></div>
+  </div>
+  <div class="bento">
+    <div class="tile tile-intern" id="tile-intern" onclick="toggleIntern(event)" tabindex="0" role="button" aria-expanded="false">
+      <div class="tile-glow glow-purple"></div>
+      <div class="tile-top">
+        <div class="tile-icon icon-intern">&#128188;</div>
+        <span class="tile-badge badge-purple">Updated every 12&nbsp;hrs</span>
+      </div>
+      <div class="tile-title">Internships</div>
+      <div class="tile-desc">Sourced from Greenhouse, Lever, and curated job boards. Scored against your skills, stage, and target locations. New listings every 12 hours.</div>
+      <div class="tile-arrow-wrap"><span class="tile-arrow">Choose region &#8594;</span></div>
+      <div class="sub-tiles" id="intern-subs">
+        <a class="sub-tile" href="https://cvengine.maamla.ai/#india" onclick="event.stopPropagation()">
+          <span class="sub-icon">&#127470;&#127475;</span>
+          <span>India</span>
+          <span class="sub-hint">Bengaluru, Delhi, Mumbai&hellip;</span>
+        </a>
+        <a class="sub-tile" href="https://cvengine.maamla.ai/#global" onclick="event.stopPropagation()">
+          <span class="sub-icon">&#127758;</span>
+          <span>Global / Remote</span>
+          <span class="sub-hint">Remote-first &amp; worldwide</span>
+        </a>
+        <a class="sub-tile" href="https://cvengine.maamla.ai/" onclick="event.stopPropagation()">
+          <span class="sub-icon">&#128203;</span>
+          <span>All Internships</span>
+          <span class="sub-hint">India + Global, ranked</span>
+        </a>
+      </div>
+    </div>
+    <a class="tile tile-cert" href="https://cvengine.maamla.ai/#cert" style="text-decoration:none">
+      <div class="tile-glow glow-blue"></div>
+      <div class="tile-top">
+        <div class="tile-icon icon-cert">&#127891;</div>
+        <span class="tile-badge badge-blue">60 free courses</span>
+      </div>
+      <div class="tile-title">Certificates</div>
+      <div class="tile-desc">Google, Coursera, AWS, Microsoft Learn, freeCodeCamp, Kaggle, NPTEL, Harvard CS50 and more &mdash; all free, all ranked for your skills.</div>
+      <span class="tile-arrow">Browse certificates &#8594;</span>
+    </a>
+    <div class="tile tile-cv" onclick="window.location.href='https://cvengine.maamla.ai/#cv'">
+      <div class="tile-glow glow-purple"></div>
+      <div class="tile-top">
+        <div class="tile-icon icon-cv">&#128196;</div>
+        <span class="tile-badge badge-purple">Smart matching</span>
+      </div>
+      <div class="tile-title">CV Tools</div>
+      <div class="tile-desc">Analyse, match, and draft.</div>
+      <div class="cv-links">
+        <a class="cv-link" href="https://cvengine.maamla.ai/#cv" onclick="event.stopPropagation()">
+          <span class="cl-icon">&#128202;</span><span class="cl-label">CV Analyser &amp; Suggestions</span><span class="cl-arr">&#8599;</span>
+        </a>
+        <a class="cv-link" href="https://cvengine.maamla.ai/" onclick="event.stopPropagation()">
+          <span class="cl-icon">&#9999;&#65039;</span><span class="cl-label">Edit Profile &amp; Skills</span><span class="cl-arr">&#8599;</span>
+        </a>
+        <a class="cv-link" href="https://cvengine.maamla.ai/" onclick="event.stopPropagation()">
+          <span class="cl-icon">&#128221;</span><span class="cl-label">Draft Applications</span><span class="cl-arr">&#8599;</span>
+        </a>
+      </div>
+    </div>
+    <a class="tile tile-ngo" href="https://cvengine.maamla.ai/#ngo" style="text-decoration:none">
+      <div class="tile-glow glow-green"></div>
+      <div class="tile-top">
+        <div class="tile-icon icon-ngo">&#129505;</div>
+        <span class="tile-badge badge-green">45 programmes</span>
+      </div>
+      <div class="tile-title">NGOs &amp; Volunteering</div>
+      <div class="tile-desc">From Robin Hood Army and MAD to UN Online Volunteers and Catchafire &mdash; ranked by time commitment, skills match, and location. Certificate status shown on every card.</div>
+      <span class="tile-arrow">Find volunteer opportunities &#8594;</span>
+    </a>
+    <div class="tile tile-ai">
+      <div class="tile-glow glow-pink"></div>
+      <div class="coming-soon">
+        <div class="cs-left">
+          <div class="cs-icon">&#129302;</div>
+          <div class="cs-text">
+            <h3>AI Checker &amp; Humaniser</h3>
+            <p>Detect AI-generated text in your CV and rewrite it to sound authentically human. Phrase suggestions, tone adjustments, and red-flag highlighting.</p>
+          </div>
+        </div>
+        <div class="cs-soon">
+          <div>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+            <div style="margin-top:6px;font-size:10px;color:var(--subtle);text-align:right">Building&hellip;</div>
+          </div>
+          <div class="cs-pct">Coming&nbsp;soon</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <span>&copy; 2026 maamla.ai</span>
+    <span class="footer-dot">&#9679;</span>
+    <a href="https://cvengine.maamla.ai">Open CV Engine</a>
+    <span class="footer-dot">&#9679;</span>
+    <span>Human-in-the-loop. Always.</span>
+    <span class="footer-dot">&#9679;</span>
+    <span>Built on Cloudflare Workers</span>
+  </footer>
+</div>
+<script>
+function toggleIntern(e){if(e.target.closest('a'))return;var t=document.getElementById('tile-intern');t.classList.toggle('expanded');t.setAttribute('aria-expanded',t.classList.contains('expanded')?'true':'false');}
+document.getElementById('tile-intern').addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();this.click();}});
+var animated=false;
+function animateStats(){if(animated)return;animated=true;document.querySelectorAll('.stat-n').forEach(function(el){var target=parseInt(el.textContent);if(isNaN(target))return;var dur=1200,t0=performance.now();function step(now){var p=Math.min((now-t0)/dur,1),ease=1-Math.pow(1-p,3);el.textContent=Math.round(ease*target);if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);});}
+var statsEl=document.querySelector('.stats');
+if('IntersectionObserver' in window){new IntersectionObserver(function(e){if(e[0].isIntersecting)animateStats();},{threshold:.5}).observe(statsEl);}else{animateStats();}
+</script>
+</body>
+</html>`;
+}
