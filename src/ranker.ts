@@ -19,8 +19,7 @@ const EARLY_CAREER_RE =
 const SENIOR_RE =
 	/\b(senior|staff|principal|manager|director|lead\s+(engineer|developer)|5\+\s*years?|10\+\s*years?|experienced\s+(engineer|developer))\b/i;
 
-// Three disjoint interest buckets aligned with profile interests
-// ["computer science", "technology"]. Each bucket hit = 1/3 of WEIGHTS.interest.
+// Four disjoint interest buckets. Each bucket hit = 1/4 of WEIGHTS.interest.
 const INTEREST_BUCKETS: RegExp[] = [
 	// Bucket 1: core CS / software
 	/computer\s*science|\bcs\b|software\s*(engineer|developer|development)|coding|programming|algorithm/i,
@@ -28,6 +27,8 @@ const INTEREST_BUCKETS: RegExp[] = [
 	/\bdata\b|analytics|machine\s+learning|\bml\b|artificial\s+intelligence|\bai\b|llm|deep\s+learning/i,
 	// Bucket 3: technology / platforms / infra
 	/\btech\b|technology|cloud|devops|security|cybersecurity|backend|frontend|full.?stack|platform|infrastructure/i,
+	// Bucket 4: social impact / community (matches "Social work" interest + NGO/volunteering roles)
+	/social\s+(work|impact)|\bvolunteer(ing)?\b|community\s+(service|impact|development|education)|human\s+rights|sustainability|environmental|\bngo\b|nonprofit|welfare|humanitarian|civic\s+tech/i,
 ];
 
 // Profile skill → certificate topic keyword mapping (certificates only)
@@ -46,6 +47,7 @@ export interface OpportunityForRanking {
 	title: string;
 	description: string | null;
 	location: string | null;
+	region?: string;  // 'india' | 'global' | 'unknown'
 }
 
 export interface ProfileForRanking {
@@ -89,11 +91,12 @@ export function scoreOpportunity(opp: OpportunityForRanking, profile: ProfileFor
 	}
 
 	// ── Location match ───────────────────────────────────────────────────────
-	// "Online" is treated as equivalent to "remote" since certificates are online-only.
+	// "Online" matches "remote"; region field used as fallback for city-list locations.
 	const locationHit = profile.target_locations.some((tl) => {
 		const t = tl.toLowerCase();
 		if (t === 'remote') return locText.includes('remote') || locText.includes('anywhere') || locText.includes('work from home') || locText.includes('online');
 		if (t === 'global') return locText.includes('global') || locText.includes('worldwide');
+		if (t === 'india') return locText.includes('india') || opp.region === 'india';
 		return locText.includes(t);
 	});
 	if (locationHit) {

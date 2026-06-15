@@ -97,6 +97,7 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
 .t-default{background:var(--surface-2);color:var(--muted)}
 .t-loc{background:var(--surface-2);color:var(--muted)}
 .opp-reason{font-size:10px;color:var(--subtle);font-style:italic;line-height:1.4}
+.opp-desc{font-size:11px;color:var(--muted);line-height:1.45;margin-top:4px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .opp-foot{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:2px;flex-wrap:wrap}
 .apply-link{font-size:11px;font-weight:500;color:var(--accent);text-decoration:none;padding:4px 9px;border-radius:var(--r-sm);border:1px solid #302860;background:var(--accent-bg);transition:all .12s;white-space:nowrap}
 .apply-link:hover{background:#221D3C;border-color:#483D80}
@@ -326,6 +327,15 @@ header{background:#08080E;border-bottom:1px solid var(--border);padding:0 24px;h
       <div id="cert-list" class="opp-list"></div>
     </div>
 
+    <div class="group">
+      <div class="group-hd">
+        <h3 class="group-label">NGOs &amp; Volunteering</h3>
+        <span class="group-divider"></span>
+        <span class="group-count" id="ngo-count">&#8212;</span>
+      </div>
+      <div id="ngo-list" class="opp-list"></div>
+    </div>
+
     <!-- ── Application Queue ── -->
     <div class="group">
       <div class="group-hd">
@@ -479,6 +489,7 @@ function buildCard(o) {
   if (o.type) h += '<span class="tag ' + typeTag(o.type) + '">' + esc(o.type) + '</span>';
   if (o.location) h += '<span class="tag t-loc">&#128205; ' + esc(o.location) + '</span>';
   h += '</div>';
+  if (o.description) h += '<div class="opp-desc">' + esc(o.description) + '</div>';
   if (o.fit_reason) h += '<div class="opp-reason">Fit: ' + esc(o.fit_reason) + '</div>';
   h += '<div class="opp-foot">';
   if (o.url) h += '<a class="apply-link" href="' + esc(o.url) + '" target="_blank" rel="noopener">Apply / View &#8599;</a>';
@@ -492,11 +503,12 @@ var sectionState = {
   india:  { offset: 0, total: 0, loaded: 0 },
   global: { offset: 0, total: 0, loaded: 0 },
   conf:   { offset: 0, total: 0, loaded: 0 },
-  cert:   { offset: 0, total: 0, loaded: 0 }
+  cert:   { offset: 0, total: 0, loaded: 0 },
+  ngo:    { offset: 0, total: 0, loaded: 0 }
 };
 
 function updateTotalMeta() {
-  var t = sectionState.india.total + sectionState.global.total + sectionState.conf.total + sectionState.cert.total;
+  var t = sectionState.india.total + sectionState.global.total + sectionState.conf.total + sectionState.cert.total + sectionState.ngo.total;
   document.getElementById('opp-meta').textContent = t + ' total';
 }
 
@@ -566,11 +578,13 @@ function loadOpps() {
   sectionState.global = { offset: 0, total: 0, loaded: 0 };
   sectionState.conf   = { offset: 0, total: 0, loaded: 0 };
   sectionState.cert   = { offset: 0, total: 0, loaded: 0 };
+  sectionState.ngo    = { offset: 0, total: 0, loaded: 0 };
   return Promise.all([
     loadSection('india',  'india-list',  'india-count',  false),
     loadSection('global', 'global-list', 'global-count', false),
     loadSection('conf',   'conf-list',   'conf-count',   false),
     loadSection('cert',   'cert-list',   'cert-count',   false),
+    loadSection('ngo',    'ngo-list',    'ngo-count',    false),
   ]);
 }
 

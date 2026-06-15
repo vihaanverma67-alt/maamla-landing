@@ -304,7 +304,7 @@ export default {
 				};
 
 				const { results: opps } = await db
-					.prepare('SELECT id, type, title, description, location FROM opportunities')
+					.prepare('SELECT id, type, title, description, location, region FROM opportunities')
 					.all<OpportunityForRanking & { id: number }>();
 
 				const stmts = opps.map((opp) => {
@@ -332,7 +332,8 @@ export default {
 				const SECTION_WHERE: Record<string, string> = {
 					india:  "o.type = 'internship' AND o.region = 'india'",
 					global: "o.type = 'internship' AND o.region != 'india'",
-					conf:   "o.type IN ('conference', 'ngo')",
+					conf:   "o.type = 'conference'",
+					ngo:    "o.type = 'ngo'",
 					cert:   "o.type = 'certificate'",
 				};
 

@@ -4,6 +4,7 @@ import { collectLever } from './lever';
 import { collectRss } from './rss';
 import { collectConfstech } from './confstech';
 import { collectCertificates } from './certificates';
+import { collectNgos } from './ngos';
 
 export async function runAllSources(db: D1Database): Promise<RunResult> {
 	const { results: sources } = await db.prepare('SELECT * FROM sources WHERE active = 1').all<SourceRow>();
@@ -56,6 +57,18 @@ export async function runAllSources(db: D1Database): Promise<RunResult> {
 		totals.skipped += certResult.skipped;
 	} catch (err) {
 		perSource.push({ source_id: 0, ats_type: 'curated', token: '', label: 'certificates', fetched: 0, kept: 0, inserted: 0, skipped: 0, error: String(err) });
+	}
+
+	// ngos runs unconditionally — static curated catalog
+	try {
+		const ngoResult = await collectNgos(db);
+		perSource.push({ source_id: 0, ats_type: 'curated', token: '', label: 'ngos', ...ngoResult });
+		totals.fetched += ngoResult.fetched;
+		totals.kept += ngoResult.kept;
+		totals.inserted += ngoResult.inserted;
+		totals.skipped += ngoResult.skipped;
+	} catch (err) {
+		perSource.push({ source_id: 0, ats_type: 'curated', token: '', label: 'ngos', fetched: 0, kept: 0, inserted: 0, skipped: 0, error: String(err) });
 	}
 
 	return { perSource, totals };
