@@ -309,8 +309,8 @@ export default {
 				const stmts = opps.map((opp) => {
 					const { score, fit_reason } = scoreOpportunity(opp, profile);
 					return db
-						.prepare('UPDATE opportunities SET fit_score = ?, fit_reason = ? WHERE id = ?')
-						.bind(score, fit_reason, opp.id);
+						.prepare('INSERT OR REPLACE INTO user_fit_scores (user_email, opportunity_id, fit_score, fit_reason, updated_at) VALUES (?, ?, ?, ?, ?)')
+						.bind(email, opp.id, score, fit_reason, now());
 				});
 
 				if (stmts.length > 0) await db.batch(stmts);
@@ -326,25 +326,34 @@ export default {
 				const limit  = isNaN(rawLimit)  || rawLimit  < 1 ? 25 : Math.min(rawLimit, 200);
 				const offset = isNaN(rawOffset) || rawOffset < 0 ? 0  : rawOffset;
 
+				const userEmail = await resolveEmail(request, env); // null → scores show as 0
+
 				const SECTION_WHERE: Record<string, string> = {
-					india:  "type = 'internship' AND region = 'india'",
-					global: "type = 'internship' AND region != 'india'",
-					conf:   "type != 'internship'",
+					india:  "o.type = 'internship' AND o.region = 'india'",
+					global: "o.type = 'internship' AND o.region != 'india'",
+					conf:   "o.type != 'internship'",
 				};
 
 				const whereClause = section && SECTION_WHERE[section]
 					? `WHERE ${SECTION_WHERE[section]}`
 					: '';
 				const orderBy = sort === 'newest'
-					? 'discovered_at DESC'
-					: 'fit_score DESC, discovered_at DESC';
+					? 'o.discovered_at DESC'
+					: 'COALESCE(ufs.fit_score, 0) DESC, o.discovered_at DESC';
+
+				const selectCols = [
+					'o.id', 'o.type', 'o.title', 'o.organization', 'o.source', 'o.url',
+					'o.location', 'o.deadline', 'o.description', 'o.status', 'o.dedup_hash',
+					'o.discovered_at', 'o.region',
+					'COALESCE(ufs.fit_score, 0) AS fit_score', 'ufs.fit_reason',
+				].join(', ');
 
 				const [countRow, { results }] = await Promise.all([
-					db.prepare(`SELECT COUNT(*) AS total FROM opportunities ${whereClause}`)
-						.first<{ total: number }>(),
+					db.prepare(`SELECT COUNT(*) AS total FROM opportunities o ${whereClause}`)
+					  .first<{ total: number }>(),
 					db.prepare(
-						`SELECT * FROM opportunities ${whereClause} ORDER BY ${orderBy} LIMIT ${limit} OFFSET ${offset}`
-					).all(),
+						`SELECT ${selectCols} FROM opportunities o LEFT JOIN user_fit_scores ufs ON ufs.opportunity_id = o.id AND ufs.user_email = ? ${whereClause} ORDER BY ${orderBy} LIMIT ${limit} OFFSET ${offset}`
+					).bind(userEmail).all(),
 				]);
 
 				return json({ results, total: countRow?.total ?? 0 });
