@@ -68,6 +68,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 
 /* ── Tab bar ── */
 .tab-bar{display:flex;gap:4px;padding:16px 28px 0;flex-wrap:wrap}
+.tab-btn{padding:5px 14px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.tab-btn.active,.tab-btn:hover{background:var(--accent-dim);color:var(--accent);border-color:rgba(139,127,255,.25)}
 .tab{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r-sm);font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border:1px solid transparent;transition:all .12s;background:none}
 .tab:hover{color:var(--text);background:var(--surface)}
 .tab.active{color:var(--text);background:var(--surface2);border-color:var(--border2)}
@@ -450,6 +452,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
         <div class="page-sub">India offline &amp; global online programmes ranked by time commitment and skills match</div>
       </div>
     </div>
+    <div style="padding:0 20px 0;display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px">
+      <button class="tab-btn active" id="ngo-f-all"   onclick="setNgoFilter('all')">All</button>
+      <button class="tab-btn"        id="ngo-f-online" onclick="setNgoFilter('online')">🌐 Online / Remote</button>
+      <button class="tab-btn"        id="ngo-f-city"   onclick="setNgoFilter('city')">📍 In Person</button>
+    </div>
     <div class="grid-wrap">
       <div class="card-grid" id="ngo-list">
         <div class="empty"><div class="empty-icon">⏳</div><span class="spinner accent"></span></div>
@@ -542,15 +549,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
       </div>
       <div>
         <label class="modal-label" for="modal-subject">Subject</label>
-        <input type="text" id="modal-subject" class="modal-input">
+        <input type="text" id="modal-subject" class="modal-input" oninput="updateMailtoLink()">
       </div>
       <div>
         <label class="modal-label" for="modal-body-text">Body — edit freely before sending</label>
-        <textarea id="modal-body-text" class="modal-textarea"></textarea>
+        <textarea id="modal-body-text" class="modal-textarea" oninput="updateMailtoLink()"></textarea>
       </div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-secondary btn-sm" onclick="copyDraft()">Copy draft</button>
+      <a id="modal-email-btn" href="#" class="btn btn-secondary btn-sm" style="text-decoration:none">&#128231; Open in email</a>
       <a id="modal-apply-link" href="#" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="text-decoration:none;display:none">Open apply page &#8599;</a>
       <span class="modal-spacer"></span>
       <button class="btn btn-primary btn-sm" onclick="approveDraft()">Mark approved</button>
@@ -615,7 +623,9 @@ function showPage(page, subTab) {
   }
   if(page==='ngo' && !_loadedPages['ngo']){
     _loadedPages['ngo']=true;
-    loadSection('ngo','ngo-list','nb-ngo');
+    loadSection('ngo','ngo-list','nb-ngo').then(function(){applyNgoFilter();});
+  } else if(page==='ngo'){
+    applyNgoFilter();
   }
   if(page==='conf' && !_loadedPages['conf']){
     _loadedPages['conf']=true;
@@ -757,7 +767,8 @@ function loadSection(key, listId, badgeId, onTotal, more){
 function buildCard(o){
   var s=o.fit_score!=null?o.fit_score:0;
   var c=sc(s);
-  var h='<div class="opp-card '+c+'">';
+  var ngoAttr=o.type==='ngo'?' data-ngo-loc="'+esc(o.location||'')+'"':'';
+  var h='<div class="opp-card '+c+'"'+ngoAttr+'>';
   h+='<div class="card-head">';
   h+='<div class="score-badge '+c+'"><span class="score-n '+c+'">'+s+'</span><span class="score-lbl">fit</span></div>';
   h+='<div class="card-info">';
@@ -926,11 +937,26 @@ function prepareDraft(oppId){
 function openDraftModal(d){
   activeDraftId=d.id;
   document.getElementById('modal-title').textContent=(d.opp_title||'Draft')+(d.opp_organization?' — '+d.opp_organization:'');
-  document.getElementById('modal-subject').value=d.subject||'';
-  document.getElementById('modal-body-text').value=d.body||'';
+  var subject=d.subject||'';
+  var body=d.body||'';
+  document.getElementById('modal-subject').value=subject;
+  document.getElementById('modal-body-text').value=body;
+  // mailto link — opens user's email client with subject + body pre-filled
+  var emailBtn=document.getElementById('modal-email-btn');
+  if(emailBtn){
+    emailBtn.href='mailto:?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  }
   var link=document.getElementById('modal-apply-link');
   if(d.opp_url){link.href=d.opp_url;link.style.display='';}else{link.style.display='none';}
   document.getElementById('draft-modal').classList.remove('hidden');
+}
+
+function updateMailtoLink(){
+  var emailBtn=document.getElementById('modal-email-btn');
+  if(!emailBtn)return;
+  var subject=document.getElementById('modal-subject').value||'';
+  var body=document.getElementById('modal-body-text').value||'';
+  emailBtn.href='mailto:?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
 }
 
 function closeDraftModal(){document.getElementById('draft-modal').classList.add('hidden');activeDraftId=null;}
@@ -1381,6 +1407,25 @@ function showDashboardAfterOnboard(){
   }).catch(function(){setBtn('btn-rerank',false,'Re-rank');showDashboard();});
 }
 
+/* ── NGO mode filter ── */
+var _ngoFilter='all';
+function setNgoFilter(f){
+  _ngoFilter=f;
+  ['all','online','city'].forEach(function(x){
+    var b=document.getElementById('ngo-f-'+x);
+    if(b)b.classList.toggle('active',x===f);
+  });
+  applyNgoFilter();
+}
+function applyNgoFilter(){
+  document.querySelectorAll('#ngo-list .opp-card[data-ngo-loc]').forEach(function(card){
+    var loc=(card.getAttribute('data-ngo-loc')||'').toLowerCase();
+    var online=loc.includes('online')||loc.includes('global')||loc.includes('remote');
+    var show=_ngoFilter==='all'||(_ngoFilter==='online'&&online)||(_ngoFilter==='city'&&!online);
+    card.style.display=show?'':'none';
+  });
+}
+
 document.getElementById('content').style.visibility='hidden';
 
 fetch('/me').then(function(r){if(r.status===401)return{authenticated:false};return r.json();})
@@ -1388,7 +1433,14 @@ fetch('/me').then(function(r){if(r.status===401)return{authenticated:false};retu
     if(!me.authenticated){document.getElementById('login-msg').style.display='block';return;}
     var sbUser=document.getElementById('sb-user-email');if(sbUser)sbUser.textContent=me.email||'';
     if(!me.onboarded){document.getElementById('onboarding-overlay').classList.add('on');return;}
+    // Show dashboard immediately with existing scores, then re-rank silently
+    // so every login gets fresh personalised scores for this user's profile
     showDashboard();
+    fetch('/rank',{method:'POST'}).then(function(){
+      _loadedPages={};sectionState={};
+      ['india','global','cert','ngo','conf'].forEach(function(k){sectionState[k]={offset:0,total:0,loaded:0};});
+      showPage(_activePage,_activeInternTab);
+    }).catch(function(){});
   }).catch(function(e){console.error('[cv-engine] /me:',e);showDashboard();});
 </script>
 </body>

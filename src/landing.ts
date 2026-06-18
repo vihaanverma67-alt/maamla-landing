@@ -2,277 +2,648 @@ export function landingHtml(): string {
 	return `<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="CV Engine — discover internships, certificates, NGOs and conferences ranked for your profile." />
-  <title>maamla.ai — CV Engine</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg:#080810;--surface:#0F0F1A;--surface2:#16162A;--border:#1E1E38;--border2:#2A2A4A;
-      --text:#E8E8F4;--muted:#888899;--subtle:#444466;
-      --purple:#7C6FFF;--purple-bg:#1A1640;--purple-glow:rgba(124,111,255,.18);
-      --green:#22D49A;--green-bg:#0A2A1E;--green-glow:rgba(34,212,154,.16);
-      --blue:#60AAFF;--blue-bg:#0A1A38;--blue-glow:rgba(96,170,255,.16);
-      --pink:#FF7EBA;--pink-bg:#28101E;
-      --r:18px;--r-sm:12px;
-    }
-    html { scroll-behavior:smooth; }
-    body {
-      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
-      background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;
-    }
-    .orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
-    .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.45;animation:drift linear infinite;}
-    .orb-1{width:520px;height:520px;background:radial-gradient(circle,#5B4FD4 0%,transparent 70%);top:-120px;left:-100px;animation-duration:22s;}
-    .orb-2{width:480px;height:480px;background:radial-gradient(circle,#0F8B5A 0%,transparent 70%);bottom:-100px;right:-80px;animation-duration:28s;animation-delay:-9s;}
-    .orb-3{width:360px;height:360px;background:radial-gradient(circle,#1A3A7A 0%,transparent 70%);top:45%;left:55%;animation-duration:34s;animation-delay:-16s;}
-    @keyframes drift{0%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-30px) scale(1.06)}66%{transform:translate(-25px,20px) scale(.95)}100%{transform:translate(0,0) scale(1)}}
-    .page{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:0 24px 80px;}
-    header{display:flex;align-items:center;justify-content:space-between;padding:28px 0 48px;}
-    .logo-wrap{display:flex;align-items:center;gap:12px;}
-    .logo-mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#7C6FFF,#4AAFFF);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;letter-spacing:-1px;box-shadow:0 0 20px rgba(124,111,255,.4);}
-    .logo-text{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
-    .logo-sub{font-size:11px;color:var(--muted);margin-top:1px;}
-    .btn-launch{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:100px;font-size:13px;font-weight:600;background:linear-gradient(135deg,#7C6FFF,#4AAFFF);color:#fff;text-decoration:none;border:none;cursor:pointer;transition:opacity .15s,transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(124,111,255,.35);}
-    .btn-launch:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 6px 28px rgba(124,111,255,.45);}
-    .hero{text-align:center;padding-bottom:56px;}
-    .hero-eyebrow{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:100px;background:var(--purple-bg);border:1px solid rgba(124,111,255,.3);font-size:11px;font-weight:600;color:var(--purple);letter-spacing:.5px;text-transform:uppercase;margin-bottom:22px;}
-    .hero-eyebrow .dot{width:6px;height:6px;background:var(--purple);border-radius:50%;animation:pulse-dot 2s ease-in-out infinite;}
-    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
-    .hero h1{font-size:clamp(36px,6vw,68px);font-weight:800;line-height:1.08;letter-spacing:-2px;color:var(--text);margin-bottom:18px;}
-    .hero h1 .grad{background:linear-gradient(90deg,#7C6FFF 0%,#60AAFF 40%,#22D49A 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-    .hero-sub{font-size:clamp(15px,2vw,18px);color:var(--muted);max-width:520px;margin:0 auto 34px;line-height:1.6;}
-    .stats{display:flex;align-items:center;justify-content:center;gap:32px;margin-bottom:56px;flex-wrap:wrap;}
-    .stat{text-align:center;}
-    .stat-n{font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--text);}
-    .stat-l{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.3px;margin-top:2px;}
-    .stat-divider{width:1px;height:36px;background:var(--border);}
-    .bento{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;}
-    .tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s;cursor:pointer;}
-    .tile:hover{transform:translateY(-3px);}
-    .tile::before{content:'';position:absolute;inset:0;border-radius:var(--r);opacity:0;transition:opacity .25s;}
-    .tile:hover::before{opacity:1;}
-    .tile-intern{grid-column:span 7;}
-    .tile-cert{grid-column:span 5;}
-    .tile-cv{grid-column:span 5;}
-    .tile-ngo{grid-column:span 7;}
-    .tile-ai{grid-column:span 12;cursor:default;}
-    .tile-intern{border-color:rgba(124,111,255,.25);}
-    .tile-intern::before{background:radial-gradient(ellipse at top left,rgba(124,111,255,.06) 0%,transparent 60%);}
-    .tile-intern:hover{border-color:rgba(124,111,255,.5);box-shadow:0 8px 48px var(--purple-glow);}
-    .tile-cert{border-color:rgba(96,170,255,.2);}
-    .tile-cert::before{background:radial-gradient(ellipse at top right,rgba(96,170,255,.06) 0%,transparent 60%);}
-    .tile-cert:hover{border-color:rgba(96,170,255,.45);box-shadow:0 8px 48px var(--blue-glow);}
-    .tile-cv{border-color:rgba(124,111,255,.2);}
-    .tile-cv::before{background:radial-gradient(ellipse at bottom left,rgba(124,111,255,.07) 0%,transparent 60%);}
-    .tile-cv:hover{border-color:rgba(124,111,255,.45);box-shadow:0 8px 48px rgba(124,111,255,.18);}
-    .tile-ngo{border-color:rgba(34,212,154,.2);}
-    .tile-ngo::before{background:radial-gradient(ellipse at bottom right,rgba(34,212,154,.06) 0%,transparent 60%);}
-    .tile-ngo:hover{border-color:rgba(34,212,154,.45);box-shadow:0 8px 48px var(--green-glow);}
-    .tile-ai{border-color:rgba(255,126,186,.15);opacity:.75;}
-    .tile-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
-    .tile-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-    .icon-intern{background:var(--purple-bg);border:1px solid rgba(124,111,255,.25);}
-    .icon-cert{background:var(--blue-bg);border:1px solid rgba(96,170,255,.25);}
-    .icon-cv{background:var(--purple-bg);border:1px solid rgba(124,111,255,.25);}
-    .icon-ngo{background:var(--green-bg);border:1px solid rgba(34,212,154,.25);}
-    .icon-ai{background:var(--pink-bg);border:1px solid rgba(255,126,186,.2);}
-    .tile-badge{padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;}
-    .badge-purple{background:var(--purple-bg);color:var(--purple);border:1px solid rgba(124,111,255,.25);}
-    .badge-blue{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(96,170,255,.25);}
-    .badge-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(34,212,154,.25);}
-    .badge-pink{background:var(--pink-bg);color:var(--pink);border:1px solid rgba(255,126,186,.2);}
-    .tile-title{font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--text);margin-bottom:6px;line-height:1.2;}
-    .tile-desc{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:18px;}
-    .tile-arrow{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--muted);transition:color .15s,gap .15s;}
-    .tile:hover .tile-arrow{gap:8px;}
-    .sub-tiles{display:none;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;}
-    .tile-intern.expanded .sub-tiles{display:grid;}
-    .tile-intern.expanded .tile-arrow-wrap{display:none;}
-    .sub-tile{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 10px;border-radius:12px;text-decoration:none;background:var(--surface2);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text);transition:border-color .15s,background .15s,transform .15s;}
-    .sub-tile:hover{border-color:rgba(124,111,255,.45);background:var(--purple-bg);transform:translateY(-2px);}
-    .sub-tile .sub-icon{font-size:22px;}
-    .sub-tile .sub-hint{font-size:10px;color:var(--muted);font-weight:400;text-align:center;}
-    .cv-links{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
-    .cv-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-sm);text-decoration:none;color:var(--text);background:var(--surface2);border:1px solid var(--border);font-size:12px;font-weight:500;transition:border-color .15s,background .15s;}
-    .cv-link:hover{border-color:rgba(124,111,255,.4);background:var(--purple-bg);}
-    .cv-link .cl-icon{width:28px;height:28px;border-radius:7px;background:var(--purple-bg);border:1px solid rgba(124,111,255,.2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
-    .cv-link .cl-label{flex:1;}
-    .cv-link .cl-arr{color:var(--subtle);font-size:14px;}
-    .coming-soon{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
-    .cs-left{display:flex;align-items:center;gap:20px;}
-    .cs-icon{width:52px;height:52px;border-radius:14px;background:var(--pink-bg);border:1px solid rgba(255,126,186,.2);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
-    .cs-text h3{font-size:20px;font-weight:800;letter-spacing:-.4px;color:var(--text);}
-    .cs-text p{font-size:13px;color:var(--muted);margin-top:4px;}
-    .cs-soon{display:flex;align-items:center;gap:8px;}
-    .progress-track{width:160px;height:5px;background:var(--surface2);border-radius:100px;overflow:hidden;}
-    .progress-fill{height:100%;width:30%;border-radius:100px;background:linear-gradient(90deg,var(--pink),rgba(255,126,186,.3));animation:shimmer 2s ease-in-out infinite;}
-    @keyframes shimmer{0%,100%{opacity:1}50%{opacity:.6}}
-    .cs-pct{font-size:11px;color:var(--pink);font-weight:700;white-space:nowrap;}
-    .tile-glow{position:absolute;width:200px;height:200px;border-radius:50%;filter:blur(60px);pointer-events:none;opacity:.12;transition:opacity .3s;}
-    .tile:hover .tile-glow{opacity:.22;}
-    .glow-purple{background:var(--purple);top:-60px;left:-60px;}
-    .glow-blue{background:var(--blue);top:-60px;right:-60px;}
-    .glow-green{background:var(--green);bottom:-60px;right:-60px;}
-    .glow-pink{background:var(--pink);bottom:-40px;left:-40px;}
-    footer{text-align:center;padding-top:60px;font-size:12px;color:var(--subtle);display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;}
-    footer a{color:var(--muted);text-decoration:none;}
-    footer a:hover{color:var(--text);}
-    .footer-dot{color:var(--border2);}
-    @media(max-width:760px){
-      header{flex-direction:column;gap:16px;text-align:center;padding-bottom:36px;}
-      .bento{grid-template-columns:1fr;gap:12px;}
-      .tile-intern,.tile-cert,.tile-cv,.tile-ngo,.tile-ai{grid-column:span 1;}
-      .sub-tiles{grid-template-columns:1fr;}
-      .coming-soon{flex-direction:column;align-items:flex-start;}
-    }
-    @media(max-width:960px) and (min-width:761px){
-      .bento{grid-template-columns:repeat(2,1fr);}
-      .tile-intern,.tile-ngo{grid-column:span 2;}
-      .tile-ai{grid-column:span 2;}
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="maamla.ai — internships, certificates, NGOs and conferences ranked for your CV. Built for undergrads in India.">
+<title>maamla.ai — Your Opportunity Engine</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070710;
+  --card:rgba(255,255,255,.045);
+  --text:#EDEDFF;
+  --muted:#7272A2;
+  --faint:#40405A;
+  --border:rgba(255,255,255,.08);
+  --border2:rgba(255,255,255,.15);
+  --sep:rgba(255,255,255,.09);
+  --sh1:0 2px 16px rgba(0,0,0,.35);
+  --sh2:0 8px 36px rgba(0,0,0,.45);
+  --sh3:0 20px 70px rgba(0,0,0,.55);
+  --purple:#7C6FFF;
+  --purple-l:rgba(124,111,255,.13);
+  --blue:#60AAFF;
+  --blue-l:rgba(96,170,255,.1);
+  --teal:#2EE8A4;
+  --teal-l:rgba(46,232,164,.1);
+  --coral:#FF8050;
+  --coral-l:rgba(255,128,80,.1);
+  --r:20px;
+}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;cursor:none}
+@media(max-width:760px){body{cursor:auto}}
+
+/* Dot grid */
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.045) 1px,transparent 1px);background-size:28px 28px;z-index:0;pointer-events:none}
+
+/* Blobs */
+.blobs{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+.blob{position:absolute;filter:blur(80px);will-change:transform}
+.b1{width:640px;height:640px;background:radial-gradient(circle,rgba(124,111,255,.22),transparent 70%);top:-160px;right:-100px;animation:fb 20s ease-in-out infinite}
+.b2{width:520px;height:520px;background:radial-gradient(circle,rgba(46,232,164,.14),transparent 70%);bottom:-140px;left:-100px;animation:fb 25s ease-in-out infinite reverse}
+.b3{width:400px;height:400px;background:radial-gradient(circle,rgba(96,170,255,.12),transparent 70%);top:45%;left:35%;animation:fb 18s ease-in-out infinite 2s}
+.b4{width:300px;height:300px;background:radial-gradient(circle,rgba(255,128,80,.1),transparent 70%);top:20%;left:10%;animation:fb 22s ease-in-out infinite 1s}
+@keyframes fb{0%,100%{transform:translate(0,0)}25%{transform:translate(28px,-24px)}50%{transform:translate(-20px,32px)}75%{transform:translate(24px,8px)}}
+
+/* Scroll progress */
+#prog{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--purple),var(--blue),var(--teal));z-index:200;width:0%;transition:width .08s linear;pointer-events:none}
+
+/* Cursor */
+#cdot{position:fixed;width:8px;height:8px;background:#fff;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+#cring{position:fixed;width:36px;height:36px;border:1.5px solid rgba(255,255,255,.28);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .15s,height .15s,border-color .2s}
+.cursor-link #cring{width:50px;height:50px;border-color:var(--purple);opacity:.8}
+.cursor-hover #cring{width:44px;height:44px;border-color:var(--teal)}
+
+/* Wrap */
+.wrap{position:relative;z-index:2}
+
+/* Header */
+header{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 44px;height:64px;display:flex;align-items:center;justify-content:space-between;transition:background .3s,border-color .3s,backdrop-filter .3s;border-bottom:1px solid transparent}
+header.scrolled{background:rgba(7,7,16,.82);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-color:var(--sep)}
+.hdr-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+.hdr-mark{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--purple),var(--blue));display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:#fff;box-shadow:0 4px 16px rgba(90,79,255,.35)}
+.hdr-name{font-size:15px;font-weight:700;letter-spacing:-.3px}
+.hdr-nav{display:flex;align-items:center;gap:6px}
+.hdr-link{font-size:13px;color:var(--muted);text-decoration:none;padding:5px 12px;border-radius:100px;transition:color .15s,background .15s;position:relative}
+.hdr-link:hover{color:var(--text);background:rgba(255,255,255,.07)}
+.hdr-right{display:flex;align-items:center;gap:10px}
+
+/* Buttons */
+.btn-p{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:100px;font-size:14px;font-weight:700;background:var(--purple);color:#fff;text-decoration:none;border:none;cursor:none;box-shadow:0 6px 24px rgba(90,79,255,.38);transition:box-shadow .2s,transform .15s;position:relative;overflow:hidden}
+.btn-p::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2),transparent);pointer-events:none}
+.btn-p:hover{box-shadow:0 10px 36px rgba(90,79,255,.52);transform:translateY(-1px)}
+.btn-p:active{transform:scale(.97)}
+.btn-g{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:100px;font-size:14px;font-weight:600;color:var(--text);text-decoration:none;border:1.5px solid var(--border2);cursor:none;background:rgba(255,255,255,.05);backdrop-filter:blur(8px);transition:border-color .15s,background .15s,transform .15s}
+.btn-g:hover{border-color:var(--purple);background:rgba(124,111,255,.1);transform:translateY(-1px)}
+.btn-sm{padding:8px 16px;font-size:13px}
+
+/* Hero */
+.hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px 60px;position:relative}
+.hero-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 14px 6px 10px;border-radius:100px;background:rgba(255,255,255,.06);border:1px solid var(--border2);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;margin-bottom:30px;box-shadow:var(--sh1);animation:pu .7s .1s both}
+.chip-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 3px rgba(0,196,161,.2)}
+.hero-h1{font-size:clamp(48px,8.5vw,100px);font-weight:900;line-height:1.0;letter-spacing:-4px;color:var(--text);margin-bottom:22px;animation:pu .7s .18s both}
+.grad-word{background:linear-gradient(100deg,var(--purple) 0%,var(--blue) 50%,var(--teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200%;animation:grad-shift 4s ease-in-out infinite alternate}
+@keyframes grad-shift{from{background-position:0%}to{background-position:100%}}
+.type-cursor{display:inline-block;width:3px;height:.82em;background:var(--purple);border-radius:2px;vertical-align:middle;margin-left:4px;animation:blink .85s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.hero-sub{font-size:clamp(15px,2vw,19px);color:var(--muted);max-width:500px;line-height:1.7;margin:0 auto 40px;animation:pu .7s .27s both}
+.hero-btns{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:56px;animation:pu .7s .35s both}
+@keyframes pu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* Floating cards */
+.float-wrap{position:relative;width:100%;max-width:680px;height:96px;margin:0 auto;animation:pu .7s .44s both}
+.fc{position:absolute;display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:16px;background:rgba(12,12,28,.88);border:1px solid var(--border2);box-shadow:0 12px 40px rgba(0,0,0,.5);white-space:nowrap;backdrop-filter:blur(16px)}
+.fc-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.fci-p{background:var(--purple-l)}
+.fci-b{background:var(--blue-l)}
+.fci-g{background:var(--teal-l)}
+.fc-info{display:flex;flex-direction:column;gap:1px}
+.fc-title{font-size:12px;font-weight:700;color:var(--text)}
+.fc-sub{font-size:10px;color:var(--muted)}
+.fc-score{font-size:13px;font-weight:800;margin-left:auto;padding-left:10px}
+.score-p{color:var(--purple)}.score-b{color:var(--blue)}.score-g{color:var(--teal)}
+.fa{left:0;top:8px;animation:fb1 6s ease-in-out infinite}
+.fb_{right:0;top:28px;animation:fb2 7s ease-in-out infinite .7s}
+.fc_{left:50%;transform:translateX(-50%);top:-12px;animation:fb3 8.5s ease-in-out infinite 1.4s}
+@keyframes fb1{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes fb2{0%,100%{transform:translateY(0)}50%{transform:translateY(-13px)}}
+@keyframes fb3{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-8px)}}
+
+/* Scroll indicator */
+.scroll-hint{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;animation:pu .7s .8s both}
+.scroll-hint span{font-size:10px;color:var(--faint);font-weight:600;letter-spacing:.7px;text-transform:uppercase}
+.scroll-mouse{width:22px;height:34px;border:1.5px solid rgba(255,255,255,.2);border-radius:11px;position:relative}
+.scroll-mouse::after{content:'';position:absolute;width:3px;height:8px;background:rgba(255,255,255,.35);border-radius:2px;top:5px;left:50%;transform:translateX(-50%);animation:sm 2s ease-in-out infinite}
+@keyframes sm{0%,100%{transform:translateX(-50%) translateY(0);opacity:1}70%{transform:translateX(-50%) translateY(9px);opacity:.15}}
+
+/* Marquee */
+.marq-wrap{padding:36px 0;border-top:1px solid var(--sep);border-bottom:1px solid var(--sep);overflow:hidden;position:relative;background:rgba(255,255,255,.02)}
+.marq-wrap::before,.marq-wrap::after{content:'';position:absolute;top:0;bottom:0;width:100px;z-index:2;pointer-events:none}
+.marq-wrap::before{left:0;background:linear-gradient(90deg,var(--bg),transparent)}
+.marq-wrap::after{right:0;background:linear-gradient(-90deg,var(--bg),transparent)}
+.marq-track{display:flex;width:max-content;animation:marq 30s linear infinite}
+.marq-track:hover{animation-play-state:paused}
+.marq-item{display:flex;align-items:center;gap:10px;padding:0 28px;white-space:nowrap;font-size:13px;font-weight:600;color:var(--muted)}
+.marq-item strong{color:var(--purple);font-size:20px;font-weight:900;letter-spacing:-1px}
+.marq-sep{width:5px;height:5px;border-radius:50%;background:var(--sep);flex-shrink:0}
+@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* Section commons */
+.sec{padding:96px 40px;max-width:1200px;margin:0 auto}
+.sec-eye{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;color:var(--purple);letter-spacing:.9px;text-transform:uppercase;margin-bottom:14px}
+.sec-eye::before{content:'';display:block;width:18px;height:2px;border-radius:1px;background:var(--purple)}
+.sec-h2{font-size:clamp(30px,5vw,52px);font-weight:900;letter-spacing:-2px;line-height:1.08;color:var(--text);margin-bottom:12px}
+.sec-sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:460px}
+
+/* Bento */
+.bento{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:44px}
+.tile{position:relative;border-radius:var(--r);padding:28px;background:var(--card);border:1px solid var(--border);box-shadow:var(--sh1);cursor:none;transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s;will-change:transform;text-decoration:none;color:inherit;display:block;overflow:hidden}
+.tile::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0;transform:scaleX(0);transform-origin:left;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.tile:hover{transform:translateY(-6px)}
+.tile:hover::after{transform:scaleX(1)}
+.t-intern{grid-column:span 7}
+.t-cert{grid-column:span 5}
+.t-cv{grid-column:span 5}
+.t-ngo{grid-column:span 7}
+.t-ai{grid-column:span 12;cursor:default}
+.t-intern::after,.t-cv::after{background:linear-gradient(90deg,var(--purple),var(--blue))}
+.t-cert::after{background:linear-gradient(90deg,var(--blue),var(--teal))}
+.t-ngo::after{background:linear-gradient(90deg,var(--teal),var(--blue))}
+.t-intern:hover{box-shadow:0 24px 64px rgba(0,0,0,.5),0 0 0 1px rgba(124,111,255,.25)}
+.t-cert:hover{box-shadow:0 24px 64px rgba(0,0,0,.5),0 0 0 1px rgba(96,170,255,.25)}
+.t-cv:hover{box-shadow:0 24px 64px rgba(0,0,0,.5),0 0 0 1px rgba(124,111,255,.25)}
+.t-ngo:hover{box-shadow:0 24px 64px rgba(0,0,0,.5),0 0 0 1px rgba(46,232,164,.25)}
+.t-ai:hover{box-shadow:var(--sh2)}
+
+.t-ico{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);flex-shrink:0}
+.tile:hover .t-ico{transform:scale(1.15) rotate(-6deg)}
+.ic-p{background:var(--purple-l)}
+.ic-b{background:var(--blue-l)}
+.ic-g{background:var(--teal-l)}
+.ic-c{background:var(--coral-l)}
+.t-label{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;margin-bottom:12px}
+.lb-p{background:var(--purple-l);color:var(--purple)}
+.lb-b{background:var(--blue-l);color:var(--blue)}
+.lb-g{background:var(--teal-l);color:var(--teal)}
+.lb-c{background:var(--coral-l);color:var(--coral)}
+.lb-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.t-title{font-size:22px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px;line-height:1.2}
+.t-desc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:18px}
+.t-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:18px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:11px;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--border)}
+.cdot-p{width:4px;height:4px;border-radius:50%;background:var(--purple);flex-shrink:0}
+.cdot-b{width:4px;height:4px;border-radius:50%;background:var(--blue);flex-shrink:0}
+.cdot-g{width:4px;height:4px;border-radius:50%;background:var(--teal);flex-shrink:0}
+.t-cta{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--muted);transition:color .15s,gap .2s}
+.tile:hover .t-cta{color:var(--purple);gap:9px}
+
+/* Intern sub-grid */
+.sub-g{display:none;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.t-intern.open .sub-g{display:grid}
+.t-intern.open .cta-r{display:none}
+.sc{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border-radius:12px;text-decoration:none;background:rgba(255,255,255,.03);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text);transition:background .15s,border-color .15s,transform .2s cubic-bezier(.34,1.56,.64,1);cursor:none;text-align:center}
+.sc:hover{background:var(--purple-l);border-color:rgba(124,111,255,.35);transform:translateY(-4px)}
+.sc-ico{font-size:20px}
+.sc-hint{font-size:10px;color:var(--muted);font-weight:400}
+
+/* CV links */
+.cv-ls{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+.cv-l{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:11px;text-decoration:none;color:var(--text);background:rgba(255,255,255,.03);border:1px solid var(--border);font-size:12px;font-weight:600;transition:background .15s,border-color .15s,transform .2s;cursor:none}
+.cv-l:hover{background:var(--purple-l);border-color:rgba(124,111,255,.3);transform:translateX(4px)}
+.cv-l-i{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;background:var(--purple-l)}
+.cv-l-arr{color:rgba(0,0,0,.2);margin-left:auto;transition:transform .15s}
+.cv-l:hover .cv-l-arr{transform:translateX(3px);color:var(--purple)}
+
+/* AI tile */
+.ai-row{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.ai-left{display:flex;align-items:center;gap:18px}
+.ai-txt h3{font-size:20px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px}
+.ai-txt p{font-size:13px;color:var(--muted);line-height:1.6;max-width:500px}
+.prog-t{width:160px;height:3px;background:rgba(0,0,0,.06);border-radius:100px;overflow:hidden;margin-bottom:6px}
+.prog-f{height:100%;width:22%;border-radius:100px;background:linear-gradient(90deg,var(--coral),rgba(255,128,80,.3));animation:pf 2.8s ease-in-out infinite}
+@keyframes pf{0%,100%{opacity:1}50%{opacity:.35}}
+.soon{font-size:10px;font-weight:700;color:var(--coral);text-transform:uppercase;letter-spacing:.5px;text-align:right}
+
+/* How it works */
+.hiw{padding:96px 40px;max-width:1200px;margin:0 auto}
+.hiw-g{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:52px;position:relative}
+.hiw-g::before{content:'';position:absolute;top:40px;left:calc(33.3% + 16px);right:calc(33.3% + 16px);height:1.5px;background:linear-gradient(90deg,var(--sep),var(--sep));background:repeating-linear-gradient(90deg,var(--sep) 0,var(--sep) 6px,transparent 6px,transparent 12px);pointer-events:none}
+.hw{padding:30px;border-radius:var(--r);background:rgba(255,255,255,.04);border:1px solid var(--border);box-shadow:var(--sh1);transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s;position:relative;backdrop-filter:blur(12px)}
+.hw:hover{transform:translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 0 1px rgba(124,111,255,.18)}
+.hw-num{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--faint);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.hw-num::after{content:'';flex:1;height:1px;background:var(--sep)}
+.hw-icon{font-size:30px;margin-bottom:14px;display:block;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.hw:hover .hw-icon{transform:scale(1.2) rotate(-5deg)}
+.hw-title{font-size:17px;font-weight:800;letter-spacing:-.3px;margin-bottom:8px}
+.hw-sub{font-size:13px;color:var(--muted);line-height:1.65}
+
+/* CTA band */
+.cta-b{margin:0 40px 80px;border-radius:24px;padding:68px 48px;text-align:center;position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(124,111,255,.1) 0%,rgba(96,170,255,.08) 50%,rgba(46,232,164,.08) 100%);border:1px solid rgba(124,111,255,.2)}
+.cta-b::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% -10%,rgba(124,111,255,.18),transparent 55%);pointer-events:none}
+.cta-b h2{font-size:clamp(28px,5vw,50px);font-weight:900;letter-spacing:-2px;margin-bottom:12px;line-height:1.08}
+.cta-b p{font-size:15px;color:var(--muted);margin-bottom:32px;max-width:420px;margin-left:auto;margin-right:auto;line-height:1.7}
+
+/* Footer */
+footer{border-top:1px solid var(--sep);padding:28px 40px;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;font-size:12px;color:var(--faint);background:rgba(255,255,255,.02)}
+footer a{color:var(--muted);text-decoration:none;transition:color .15s}
+footer a:hover{color:var(--purple)}
+.fd{color:var(--sep)}
+
+/* Reveal animations */
+.rev{opacity:0;transform:translateY(24px);transition:opacity .65s cubic-bezier(.16,1,.3,1),transform .65s cubic-bezier(.16,1,.3,1)}
+.rev.in{opacity:1;transform:none}
+.d1{transition-delay:.07s}.d2{transition-delay:.14s}.d3{transition-delay:.21s}
+
+/* Responsive */
+@media(max-width:920px){
+  .bento{grid-template-columns:repeat(2,1fr)}
+  .t-intern,.t-ngo{grid-column:span 2}
+  .t-cert,.t-cv,.t-ai{grid-column:span 1;grid-column:span 2}
+  .hiw-g{grid-template-columns:1fr}
+  .hiw-g::before{display:none}
+  .sec,.hiw{padding:64px 24px}
+  .cta-b{margin:0 24px 60px;padding:52px 28px}
+  header{padding:0 24px}
+}
+@media(max-width:640px){
+  header .hdr-nav{display:none}
+  .bento{grid-template-columns:1fr}
+  .t-intern,.t-cert,.t-cv,.t-ngo,.t-ai{grid-column:span 1}
+  .sub-g{grid-template-columns:1fr}
+  .float-wrap{display:none}
+  .hero{padding:80px 20px 60px}
+  .hero-h1{letter-spacing:-3px}
+  .ai-row{flex-direction:column;align-items:flex-start}
+  footer{padding:24px 20px}
+}
+</style>
 </head>
 <body>
-<div class="orbs">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
+
+<!-- Scroll progress -->
+<div id="prog"></div>
+
+<!-- Custom cursor -->
+<div id="cdot"></div>
+<div id="cring"></div>
+
+<!-- Blobs -->
+<div class="blobs" aria-hidden="true">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div class="blob b4"></div>
 </div>
-<div class="page">
-  <header>
-    <div class="logo-wrap">
-      <div class="logo-mark">m</div>
-      <div>
-        <div class="logo-text">maamla.ai</div>
-        <div class="logo-sub">Opportunity Engine</div>
-      </div>
-    </div>
-    <a href="https://cvengine.maamla.ai" class="btn-launch">Open Dashboard &#8599;</a>
-  </header>
-  <section class="hero">
-    <div class="hero-eyebrow"><span class="dot"></span>Built for undergrads in India</div>
-    <h1>Your opportunities,<br><span class="grad">ranked for you.</span></h1>
-    <p class="hero-sub">Internships, certificates, NGOs and conferences &mdash; all discovered automatically and scored against your profile. Human&#8209;in&#8209;the&#8209;loop. Always free.</p>
-  </section>
-  <div class="stats">
-    <div class="stat"><div class="stat-n">146</div><div class="stat-l">Internship listings</div></div>
-    <div class="stat-divider"></div>
-    <div class="stat"><div class="stat-n">60</div><div class="stat-l">Free certificates</div></div>
-    <div class="stat-divider"></div>
-    <div class="stat"><div class="stat-n">45</div><div class="stat-l">NGO programmes</div></div>
-    <div class="stat-divider"></div>
-    <div class="stat"><div class="stat-n">121</div><div class="stat-l">Conferences</div></div>
-    <div class="stat-divider"></div>
-    <div class="stat"><div class="stat-n">&#8734;</div><div class="stat-l">Ranked for your CV</div></div>
+
+<div class="wrap">
+
+<!-- Header -->
+<header id="hdr">
+  <a href="/" class="hdr-logo">
+    <div class="hdr-mark">m</div>
+    <span class="hdr-name">maamla.ai</span>
+  </a>
+  <nav class="hdr-nav">
+    <a href="#bento" class="hdr-link">Features</a>
+    <a href="#how-it-works" class="hdr-link">How it works</a>
+    <a href="https://cvengine.maamla.ai/#cert" class="hdr-link">Certificates</a>
+    <a href="https://cvengine.maamla.ai/#ngo" class="hdr-link">NGOs</a>
+  </nav>
+  <div class="hdr-right">
+    <a href="https://cvengine.maamla.ai" class="btn-p btn-sm magnetic">Open App &rarr;</a>
   </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-chip">
+    <span class="chip-dot"></span>
+    Free &middot; Human-in-the-loop &middot; Built for India
+  </div>
+
+  <h1 class="hero-h1">
+    Stop hunting<br>
+    for <span class="grad-word" id="typed-word">internships</span><span class="type-cursor"></span>
+  </h1>
+
+  <p class="hero-sub">
+    maamla.ai discovers internships, certificates, NGOs and conferences for you — scored against your profile. Zero auto-submissions. You stay in control.
+  </p>
+
+  <div class="hero-btns">
+    <a href="https://cvengine.maamla.ai" class="btn-p magnetic">Get started free &rarr;</a>
+    <a href="#how-it-works" class="btn-g magnetic">How it works</a>
+  </div>
+
+  <!-- Floating proof cards -->
+  <div class="float-wrap">
+    <div class="fc fa">
+      <div class="fc-ico fci-p">&#x1F4BC;</div>
+      <div class="fc-info">
+        <span class="fc-title">SWE Intern &middot; Google</span>
+        <span class="fc-sub">Hyderabad &middot; CS profile match</span>
+      </div>
+      <span class="fc-score score-p">89</span>
+    </div>
+    <div class="fc fb_">
+      <div class="fc-ico fci-b">&#x1F393;</div>
+      <div class="fc-info">
+        <span class="fc-title">Google Data Analytics</span>
+        <span class="fc-sub">Coursera &middot; Free &middot; skill match</span>
+      </div>
+      <span class="fc-score score-b">82</span>
+    </div>
+    <div class="fc fc_">
+      <div class="fc-ico fci-g">&#x1F91D;</div>
+      <div class="fc-info">
+        <span class="fc-title">Teach For India</span>
+        <span class="fc-sub">8 hrs/week &middot; cert available</span>
+      </div>
+      <span class="fc-score score-g">77</span>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-mouse"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- Marquee -->
+<div class="marq-wrap">
+  <div class="marq-track">
+    <div class="marq-item"><strong>146</strong> Internships <span class="marq-sep"></span></div>
+    <div class="marq-item"><strong>60</strong> Free Certs <span class="marq-sep"></span></div>
+    <div class="marq-item"><strong>45</strong> NGO Programmes <span class="marq-sep"></span></div>
+    <div class="marq-item"><strong>121</strong> Conferences <span class="marq-sep"></span></div>
+    <div class="marq-item"><strong>100%</strong> Free, always <span class="marq-sep"></span></div>
+    <div class="marq-item">Refreshed <strong>every 12 hrs</strong> <span class="marq-sep"></span></div>
+    <div class="marq-item"><strong>0</strong> Auto-submissions <span class="marq-sep"></span></div>
+    <div class="marq-item">Human-in-the-loop <span class="marq-sep"></span></div>
+    <div class="marq-item"><strong>146</strong> Internships <span class="marq-sep"></span></div>
+    <div class="marq-item"><strong>60</strong> Free Certs <span class="marq-sep"></span></div>
+    <div class="marq-item"><strong>45</strong> NGO Programmes <span class="marq-sep"></span></div>
+    <div class="marq-item"><strong>121</strong> Conferences <span class="marq-sep"></span></div>
+    <div class="marq-item"><strong>100%</strong> Free, always <span class="marq-sep"></span></div>
+    <div class="marq-item">Refreshed <strong>every 12 hrs</strong> <span class="marq-sep"></span></div>
+    <div class="marq-item"><strong>0</strong> Auto-submissions <span class="marq-sep"></span></div>
+    <div class="marq-item">Human-in-the-loop <span class="marq-sep"></span></div>
+  </div>
+</div>
+
+<!-- Bento -->
+<div class="sec rev" id="bento">
+  <div class="sec-eye">Everything in one place</div>
+  <h2 class="sec-h2">Your complete <span class="grad-word">opportunity stack.</span></h2>
+  <p class="sec-sub">Every category you need — discovered for you, ranked against your profile.</p>
+
   <div class="bento">
-    <div class="tile tile-intern" id="tile-intern" onclick="toggleIntern(event)" tabindex="0" role="button" aria-expanded="false">
-      <div class="tile-glow glow-purple"></div>
-      <div class="tile-top">
-        <div class="tile-icon icon-intern">&#128188;</div>
-        <span class="tile-badge badge-purple">Updated every 12&nbsp;hrs</span>
+
+    <!-- Internships -->
+    <div class="tile t-intern rev d1" id="tile-intern" onclick="toggleIntern(event)" role="button" tabindex="0">
+      <div class="t-ico ic-p">&#x1F4BC;</div>
+      <div class="t-label lb-p"><span class="lb-dot"></span> Live · Updated every 12 hrs</div>
+      <div class="t-title">Internships</div>
+      <div class="t-desc">Sourced from Greenhouse, Lever &amp; curated boards. Fit-scored against your skills, year, and target cities in real time.</div>
+      <div class="t-chips">
+        <span class="chip"><span class="cdot-p"></span>India</span>
+        <span class="chip"><span class="cdot-b"></span>Global / Remote</span>
+        <span class="chip"><span class="cdot-g"></span>Fit-scored</span>
       </div>
-      <div class="tile-title">Internships</div>
-      <div class="tile-desc">Sourced from Greenhouse, Lever, and curated job boards. Scored against your skills, stage, and target locations. New listings every 12 hours.</div>
-      <div class="tile-arrow-wrap"><span class="tile-arrow">Choose region &#8594;</span></div>
-      <div class="sub-tiles" id="intern-subs">
-        <a class="sub-tile" href="https://cvengine.maamla.ai/#india" onclick="event.stopPropagation()">
-          <span class="sub-icon">&#127470;&#127475;</span>
-          <span>India</span>
-          <span class="sub-hint">Bengaluru, Delhi, Mumbai&hellip;</span>
+      <div class="cta-r"><span class="t-cta">Choose region &rarr;</span></div>
+      <div class="sub-g">
+        <a class="sc" href="https://cvengine.maamla.ai/#india" onclick="event.stopPropagation()">
+          <span class="sc-ico">&#x1F1EE;&#x1F1F3;</span><span>India</span>
+          <span class="sc-hint">Bengaluru &middot; Delhi &middot; Mumbai</span>
         </a>
-        <a class="sub-tile" href="https://cvengine.maamla.ai/#global" onclick="event.stopPropagation()">
-          <span class="sub-icon">&#127758;</span>
-          <span>Global / Remote</span>
-          <span class="sub-hint">Remote-first &amp; worldwide</span>
+        <a class="sc" href="https://cvengine.maamla.ai/#global" onclick="event.stopPropagation()">
+          <span class="sc-ico">&#x1F30D;</span><span>Global / Remote</span>
+          <span class="sc-hint">Remote-first &amp; worldwide</span>
         </a>
-        <a class="sub-tile" href="https://cvengine.maamla.ai/" onclick="event.stopPropagation()">
-          <span class="sub-icon">&#128203;</span>
-          <span>All Internships</span>
-          <span class="sub-hint">India + Global, ranked</span>
-        </a>
-      </div>
-    </div>
-    <a class="tile tile-cert" href="https://cvengine.maamla.ai/#cert" style="text-decoration:none">
-      <div class="tile-glow glow-blue"></div>
-      <div class="tile-top">
-        <div class="tile-icon icon-cert">&#127891;</div>
-        <span class="tile-badge badge-blue">60 free courses</span>
-      </div>
-      <div class="tile-title">Certificates</div>
-      <div class="tile-desc">Google, Coursera, AWS, Microsoft Learn, freeCodeCamp, Kaggle, NPTEL, Harvard CS50 and more &mdash; all free, all ranked for your skills.</div>
-      <span class="tile-arrow">Browse certificates &#8594;</span>
-    </a>
-    <div class="tile tile-cv" onclick="window.location.href='https://cvengine.maamla.ai/#cv'">
-      <div class="tile-glow glow-purple"></div>
-      <div class="tile-top">
-        <div class="tile-icon icon-cv">&#128196;</div>
-        <span class="tile-badge badge-purple">Smart matching</span>
-      </div>
-      <div class="tile-title">CV Tools</div>
-      <div class="tile-desc">Analyse, match, and draft.</div>
-      <div class="cv-links">
-        <a class="cv-link" href="https://cvengine.maamla.ai/#cv" onclick="event.stopPropagation()">
-          <span class="cl-icon">&#128202;</span><span class="cl-label">CV Analyser &amp; Suggestions</span><span class="cl-arr">&#8599;</span>
-        </a>
-        <a class="cv-link" href="https://cvengine.maamla.ai/" onclick="event.stopPropagation()">
-          <span class="cl-icon">&#9999;&#65039;</span><span class="cl-label">Edit Profile &amp; Skills</span><span class="cl-arr">&#8599;</span>
-        </a>
-        <a class="cv-link" href="https://cvengine.maamla.ai/" onclick="event.stopPropagation()">
-          <span class="cl-icon">&#128221;</span><span class="cl-label">Draft Applications</span><span class="cl-arr">&#8599;</span>
+        <a class="sc" href="https://cvengine.maamla.ai/" onclick="event.stopPropagation()">
+          <span class="sc-ico">&#x1F4CB;</span><span>All internships</span>
+          <span class="sc-hint">Everything, ranked</span>
         </a>
       </div>
     </div>
-    <a class="tile tile-ngo" href="https://cvengine.maamla.ai/#ngo" style="text-decoration:none">
-      <div class="tile-glow glow-green"></div>
-      <div class="tile-top">
-        <div class="tile-icon icon-ngo">&#129505;</div>
-        <span class="tile-badge badge-green">45 programmes</span>
+
+    <!-- Certificates -->
+    <a class="tile t-cert rev d2" href="https://cvengine.maamla.ai/#cert">
+      <div class="t-ico ic-b">&#x1F393;</div>
+      <div class="t-label lb-b">60 free courses</div>
+      <div class="t-title">Certificates</div>
+      <div class="t-desc">Google, Coursera, AWS, Microsoft, Harvard CS50, NPTEL, Kaggle — all free, ranked by skill match.</div>
+      <div class="t-chips">
+        <span class="chip"><span class="cdot-b"></span>Skill-matched</span>
+        <span class="chip"><span class="cdot-g"></span>Always free</span>
       </div>
-      <div class="tile-title">NGOs &amp; Volunteering</div>
-      <div class="tile-desc">From Robin Hood Army and MAD to UN Online Volunteers and Catchafire &mdash; ranked by time commitment, skills match, and location. Certificate status shown on every card.</div>
-      <span class="tile-arrow">Find volunteer opportunities &#8594;</span>
+      <span class="t-cta">Browse &rarr;</span>
     </a>
-    <div class="tile tile-ai">
-      <div class="tile-glow glow-pink"></div>
-      <div class="coming-soon">
-        <div class="cs-left">
-          <div class="cs-icon">&#129302;</div>
-          <div class="cs-text">
+
+    <!-- CV Tools -->
+    <div class="tile t-cv rev d1" onclick="window.location.href='https://cvengine.maamla.ai/#cv'">
+      <div class="t-ico ic-p">&#x1F4C4;</div>
+      <div class="t-label lb-p">Smart matching</div>
+      <div class="t-title">CV Tools</div>
+      <div class="t-desc">Analyse, match &amp; draft tailored applications in seconds.</div>
+      <div class="cv-ls">
+        <a class="cv-l" href="https://cvengine.maamla.ai/#cv" onclick="event.stopPropagation()">
+          <div class="cv-l-i">&#x1F4CA;</div><span>CV Analyser &amp; Suggestions</span><span class="cv-l-arr">&#8594;</span>
+        </a>
+        <a class="cv-l" href="https://cvengine.maamla.ai/" onclick="event.stopPropagation()">
+          <div class="cv-l-i">&#x270F;&#xFE0F;</div><span>Edit Profile &amp; Skills</span><span class="cv-l-arr">&#8594;</span>
+        </a>
+        <a class="cv-l" href="https://cvengine.maamla.ai/" onclick="event.stopPropagation()">
+          <div class="cv-l-i">&#x1F4DD;</div><span>Draft Applications</span><span class="cv-l-arr">&#8594;</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- NGOs -->
+    <a class="tile t-ngo rev d2" href="https://cvengine.maamla.ai/#ngo">
+      <div class="t-ico ic-g">&#x1F91D;</div>
+      <div class="t-label lb-g">45 programmes</div>
+      <div class="t-title">NGOs &amp; Volunteering</div>
+      <div class="t-desc">Robin Hood Army, MAD, Teach For India, UN Online Volunteers, Catchafire — ranked by time commitment, skill match &amp; location. Certificate status on every card.</div>
+      <div class="t-chips">
+        <span class="chip"><span class="cdot-g"></span>India offline</span>
+        <span class="chip"><span class="cdot-b"></span>Global online</span>
+        <span class="chip"><span class="cdot-p"></span>Cert status</span>
+      </div>
+      <span class="t-cta">Find opportunities &rarr;</span>
+    </a>
+
+    <!-- AI tile -->
+    <div class="tile t-ai rev">
+      <div class="ai-row">
+        <div class="ai-left">
+          <div class="t-ico ic-c" style="margin-bottom:0;flex-shrink:0">&#x1F916;</div>
+          <div class="ai-txt">
             <h3>AI Checker &amp; Humaniser</h3>
-            <p>Detect AI-generated text in your CV and rewrite it to sound authentically human. Phrase suggestions, tone adjustments, and red-flag highlighting.</p>
+            <p>Detect AI-written text in your CV and rewrite it to sound authentically human. Red-flag phrases, tone adjustments, and live suggestions.</p>
           </div>
         </div>
-        <div class="cs-soon">
-          <div>
-            <div class="progress-track"><div class="progress-fill"></div></div>
-            <div style="margin-top:6px;font-size:10px;color:var(--subtle);text-align:right">Building&hellip;</div>
-          </div>
-          <div class="cs-pct">Coming&nbsp;soon</div>
+        <div style="flex-shrink:0">
+          <div class="prog-t"><div class="prog-f"></div></div>
+          <div class="soon">Coming soon</div>
         </div>
       </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- How it works -->
+<div class="hiw rev" id="how-it-works">
+  <div class="sec-eye">Simple by design</div>
+  <h2 class="sec-h2">Three steps, <span class="grad-word">zero spam.</span></h2>
+  <p class="sec-sub">Nothing is ever sent automatically. You approve every single action before it moves.</p>
+
+  <div class="hiw-g">
+    <div class="hw rev d1">
+      <div class="hw-num">01 <span></span></div>
+      <span class="hw-icon">&#x1F50D;</span>
+      <div class="hw-title">We discover</div>
+      <div class="hw-sub">Auto-collected from Greenhouse, Lever, NPTEL, UN Volunteers, conference APIs and curated boards. Refreshed every 12 hours, deduplicated.</div>
+    </div>
+    <div class="hw rev d2">
+      <div class="hw-num">02 <span></span></div>
+      <span class="hw-icon">&#x26A1;</span>
+      <div class="hw-title">We score</div>
+      <div class="hw-sub">Rule-based ranker matches every opportunity to your skills, stage, interests and target cities. Free, no paid AI — just smart matching that improves with your profile.</div>
+    </div>
+    <div class="hw rev d3">
+      <div class="hw-num">03 <span></span></div>
+      <span class="hw-icon">&#x270D;&#xFE0F;</span>
+      <div class="hw-title">You decide</div>
+      <div class="hw-sub">Review ranked results, generate a tailored draft, copy it, and submit on the org&rsquo;s site yourself. We queue it — you pull the trigger. Always.</div>
     </div>
   </div>
-  <footer>
-    <span>&copy; 2026 maamla.ai</span>
-    <span class="footer-dot">&#9679;</span>
-    <a href="https://cvengine.maamla.ai">Open CV Engine</a>
-    <span class="footer-dot">&#9679;</span>
-    <span>Human-in-the-loop. Always.</span>
-    <span class="footer-dot">&#9679;</span>
-    <span>Built on Cloudflare Workers</span>
-  </footer>
 </div>
+
+<!-- CTA -->
+<div class="cta-b rev">
+  <h2>Ready to find your<br><span class="grad-word">next opportunity?</span></h2>
+  <p>Join students across India discovering internships, certifications and volunteering that actually match their profile — for free.</p>
+  <a href="https://cvengine.maamla.ai" class="btn-p magnetic" style="font-size:15px;padding:14px 32px;margin:0 auto;display:inline-flex">Open CV Engine &rarr;</a>
+</div>
+
+<!-- Footer -->
+<footer>
+  <span>&copy; 2026 maamla.ai</span>
+  <span class="fd">&middot;</span>
+  <a href="https://cvengine.maamla.ai">Dashboard</a>
+  <span class="fd">&middot;</span>
+  <span>Human-in-the-loop. Always.</span>
+  <span class="fd">&middot;</span>
+  <span>Built on Cloudflare Workers</span>
+</footer>
+
+</div><!-- /wrap -->
+
 <script>
-function toggleIntern(e){if(e.target.closest('a'))return;var t=document.getElementById('tile-intern');t.classList.toggle('expanded');t.setAttribute('aria-expanded',t.classList.contains('expanded')?'true':'false');}
-document.getElementById('tile-intern').addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();this.click();}});
-var animated=false;
-function animateStats(){if(animated)return;animated=true;document.querySelectorAll('.stat-n').forEach(function(el){var target=parseInt(el.textContent);if(isNaN(target))return;var dur=1200,t0=performance.now();function step(now){var p=Math.min((now-t0)/dur,1),ease=1-Math.pow(1-p,3);el.textContent=Math.round(ease*target);if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);});}
-var statsEl=document.querySelector('.stats');
-if('IntersectionObserver' in window){new IntersectionObserver(function(e){if(e[0].isIntersecting)animateStats();},{threshold:.5}).observe(statsEl);}else{animateStats();}
+/* ── Cursor ── */
+var cdot=document.getElementById('cdot'),cring=document.getElementById('cring');
+var mx=window.innerWidth/2,my=window.innerHeight/2,rx=mx,ry=my;
+document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;});
+(function tick(){
+  rx+=(mx-rx)*0.14;ry+=(my-ry)*0.14;
+  cdot.style.left=mx+'px';cdot.style.top=my+'px';
+  cring.style.left=rx+'px';cring.style.top=ry+'px';
+  requestAnimationFrame(tick);
+})();
+document.querySelectorAll('a,button,[role=button],.tile').forEach(function(el){
+  el.addEventListener('mouseenter',function(){document.body.classList.add('cursor-link');});
+  el.addEventListener('mouseleave',function(){document.body.classList.remove('cursor-link');});
+});
+
+/* ── Scroll progress ── */
+var prog=document.getElementById('prog');
+window.addEventListener('scroll',function(){
+  var s=document.documentElement;
+  var pct=(s.scrollTop||document.body.scrollTop)/(s.scrollHeight-s.clientHeight);
+  prog.style.width=(pct*100)+'%';
+  document.getElementById('hdr').classList.toggle('scrolled',window.scrollY>20);
+},{passive:true});
+
+/* ── Blob mouse parallax ── */
+var blobs=document.querySelectorAll('.blob');
+document.addEventListener('mousemove',function(e){
+  var px=(e.clientX/window.innerWidth-.5),py=(e.clientY/window.innerHeight-.5);
+  blobs.forEach(function(b,i){
+    var d=(i+1)*18;
+    b.style.transform='translate('+(px*d)+'px,'+(py*d)+'px)';
+  });
+});
+
+/* ── Magnetic buttons ── */
+document.querySelectorAll('.magnetic').forEach(function(btn){
+  btn.addEventListener('mousemove',function(e){
+    var r=btn.getBoundingClientRect();
+    var x=(e.clientX-r.left-r.width/2)*0.32;
+    var y=(e.clientY-r.top-r.height/2)*0.42;
+    btn.style.transform='translate('+x+'px,'+y+'px) translateY(-1px)';
+  });
+  btn.addEventListener('mouseleave',function(){btn.style.transform='';});
+});
+
+/* ── Typewriter ── */
+(function(){
+  var words=['internships.','certificates.','NGOs to join.','conferences.','opportunities.'];
+  var el=document.getElementById('typed-word');
+  if(!el)return;
+  var wi=0,ci=words[0].length,del=true,pause=0;
+  function tick(){
+    var w=words[wi];
+    if(pause>0){pause--;setTimeout(tick,90);return;}
+    if(del){
+      el.textContent=w.slice(0,--ci);
+      if(ci===0){del=false;wi=(wi+1)%words.length;pause=4;w=words[wi];}
+      setTimeout(tick,40);
+    }else{
+      el.textContent=words[wi].slice(0,++ci);
+      if(ci===words[wi].length){del=true;pause=22;}
+      setTimeout(tick,75);
+    }
+  }
+  tick();
+})();
+
+/* ── Scroll reveal ── */
+(function(){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e,i){
+      if(e.isIntersecting){
+        var delay=i*35;
+        setTimeout(function(){e.target.classList.add('in');},delay);
+        io.unobserve(e.target);
+      }
+    });
+  },{threshold:.06});
+  document.querySelectorAll('.rev').forEach(function(el){io.observe(el);});
+})();
+
+/* ── 3D tilt on tiles ── */
+document.querySelectorAll('.tile').forEach(function(card){
+  card.addEventListener('mousemove',function(e){
+    var r=card.getBoundingClientRect();
+    var x=(e.clientX-r.left)/r.width-.5;
+    var y=(e.clientY-r.top)/r.height-.5;
+    card.style.transform='perspective(1000px) rotateY('+(x*7)+'deg) rotateX('+(-y*5)+'deg) translateY(-6px)';
+  });
+  card.addEventListener('mouseleave',function(){card.style.transform='';});
+});
+
+/* ── Internship toggle ── */
+function toggleIntern(e){
+  if(e.target.closest('a'))return;
+  document.getElementById('tile-intern').classList.toggle('open');
+}
+document.getElementById('tile-intern').addEventListener('keydown',function(e){
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();this.click();}
+});
+
+/* ── Marquee counter ── */
+(function(){
+  var done=false;
+  var io=new IntersectionObserver(function(e){
+    if(e[0].isIntersecting&&!done){done=true;
+      document.querySelectorAll('.marq-item strong').forEach(function(el){
+        var t=parseInt(el.textContent);if(isNaN(t))return;
+        var dur=1100,t0=performance.now();
+        (function s(now){
+          var p=Math.min((now-t0)/dur,1),ease=1-Math.pow(1-p,3);
+          el.textContent=Math.round(ease*t);
+          if(p<1)requestAnimationFrame(s);
+        })(t0);
+      });
+    }
+  },{threshold:.4});
+  var mq=document.querySelector('.marq-wrap');if(mq)io.observe(mq);
+})();
 </script>
 </body>
-</html>`;
+</html>
+`;
 }

@@ -445,6 +445,63 @@ const CATALOG: CertEntry[] = [
 		description: 'Docker containers, images, microservices, DevOps workflows, and containerization for software development. Free IBM badge.',
 		region: 'global',
 	},
+
+	// ── Meta ──────────────────────────────────────────────────────────────────
+	{ title: 'Meta Front-End Developer Professional Certificate', org: 'Meta', url: 'https://www.coursera.org/professional-certificates/meta-front-end-developer', description: 'HTML, CSS, JavaScript, React, UI/UX design, and version control. Taught by Meta engineers. Free to audit on Coursera.', region: 'global' },
+	{ title: 'Meta Back-End Developer Professional Certificate', org: 'Meta', url: 'https://www.coursera.org/professional-certificates/meta-back-end-developer', description: 'Python, Django REST API, databases, and cloud deployment. Taught by Meta engineers. Free to audit on Coursera.', region: 'global' },
+	{ title: 'Meta Database Engineer Professional Certificate', org: 'Meta', url: 'https://www.coursera.org/professional-certificates/meta-database-engineer', description: 'MySQL, Python, database architecture, SQL for data science. Free to audit on Coursera.', region: 'global' },
+
+	// ── DeepLearning.AI ──────────────────────────────────────────────────────
+	{ title: 'Deep Learning Specialization', org: 'DeepLearning.AI', url: 'https://www.coursera.org/specializations/deep-learning', description: 'Neural networks, CNNs, RNNs, LSTM, sequence models, and ML strategy. 5-course specialization by Andrew Ng. Free to audit.', region: 'global' },
+	{ title: 'Machine Learning Specialization', org: 'DeepLearning.AI / Stanford', url: 'https://www.coursera.org/specializations/machine-learning-introduction', description: 'Supervised, unsupervised, and reinforcement learning with Python. By Andrew Ng. Free to audit.', region: 'global' },
+	{ title: 'Generative AI for Everyone', org: 'DeepLearning.AI', url: 'https://www.coursera.org/learn/generative-ai-for-everyone', description: 'LLMs, prompting, RAG, and real-world AI applications. Free to audit.', region: 'global' },
+	{ title: 'LangChain for LLM Application Development', org: 'DeepLearning.AI', url: 'https://www.deeplearning.ai/short-courses/langchain-for-llm-application-development/', description: 'Build LLM apps using LangChain: chains, agents, memory, and RAG. Free short course.', region: 'global' },
+	{ title: 'Prompt Engineering for Developers', org: 'DeepLearning.AI', url: 'https://www.deeplearning.ai/short-courses/chatgpt-prompt-engineering-for-developers/', description: 'Prompting best practices with the OpenAI API: summarisation, inference, and chatbots. Free course.', region: 'global' },
+
+	// ── NPTEL / Swayam India ─────────────────────────────────────────────────
+	{ title: 'Data Science for Engineers', org: 'NPTEL / IIT Madras', url: 'https://nptel.ac.in/courses/106106195', description: 'Statistics, Python, regression, classification, clustering, and neural networks. NPTEL certificate. Free on Swayam.', region: 'india' },
+	{ title: 'Programming, Data Structures and Algorithms using Python', org: 'NPTEL / IIT Madras', url: 'https://nptel.ac.in/courses/106106145', description: 'Core Python, data structures, and algorithm design. NPTEL certificate. Free on Swayam.', region: 'india' },
+	{ title: 'Introduction to Machine Learning', org: 'NPTEL / IIT Kharagpur', url: 'https://nptel.ac.in/courses/106105152', description: 'Decision trees, SVM, neural networks, clustering. NPTEL certificate. Free on Swayam.', region: 'india' },
+	{ title: 'Cloud Computing', org: 'NPTEL / IIT Kharagpur', url: 'https://nptel.ac.in/courses/106105167', description: 'Cloud service models, virtualisation, AWS, Azure, MapReduce. NPTEL certificate. Free on Swayam.', region: 'india' },
+	{ title: 'Database Management System', org: 'NPTEL / IIT Madras', url: 'https://nptel.ac.in/courses/106106093', description: 'SQL, ER diagrams, normalisation, transactions, query optimisation. NPTEL certificate. Free on Swayam.', region: 'india' },
+	{ title: 'Joy of Computing using Python', org: 'NPTEL / IIT Ropar', url: 'https://nptel.ac.in/courses/106106168', description: 'Beginner Python with games and simulations. Great for first-year undergrads. Free NPTEL certificate on Swayam.', region: 'india' },
+	{ title: 'Introduction to Internet of Things', org: 'NPTEL / IIT Kharagpur', url: 'https://nptel.ac.in/courses/106105166', description: 'IoT architecture, Raspberry Pi, Arduino, and cloud connectivity. NPTEL certificate. Free on Swayam.', region: 'india' },
+	{ title: 'Ethical Hacking', org: 'NPTEL / IIT Kharagpur', url: 'https://nptel.ac.in/courses/106105217', description: 'Penetration testing, network security, cryptography, web app security. NPTEL certificate. Free on Swayam.', region: 'india' },
+	{ title: 'Software Engineering', org: 'NPTEL / IIT Bombay', url: 'https://nptel.ac.in/courses/106101061', description: 'SDLC, agile, UML, design patterns, testing. NPTEL certificate. Free on Swayam.', region: 'india' },
+	{ title: 'Blockchain and its Applications', org: 'NPTEL / IIT Kharagpur', url: 'https://nptel.ac.in/courses/106105184', description: 'Bitcoin, Ethereum, smart contracts, Solidity, consensus mechanisms, and DApps. NPTEL certificate. Free on Swayam.', region: 'india' },
+	{ title: 'Design Thinking — A Primer', org: 'NPTEL / IIT Bombay', url: 'https://nptel.ac.in/courses/109101092', description: 'Human-centred design, empathy mapping, ideation, and prototyping. NPTEL certificate. Free on Swayam.', region: 'india' },
+
+	// ── Cisco NetAcad ────────────────────────────────────────────────────────
+	{ title: 'CCNA: Introduction to Networks', org: 'Cisco Networking Academy', url: 'https://www.netacad.com/courses/ccna-introduction-networks', description: 'Network fundamentals, Ethernet, IP addressing, routing, and switching. Free Cisco NetAcad certificate.', region: 'global' },
+	{ title: 'Cybersecurity Essentials', org: 'Cisco Networking Academy', url: 'https://www.netacad.com/courses/cybersecurity-essentials', description: 'Cyber threats, vulnerabilities, cryptography, and incident response. Free Cisco certificate.', region: 'global' },
+	{ title: 'Introduction to Data Science', org: 'Cisco Networking Academy', url: 'https://www.netacad.com/courses/data-science', description: 'Data analysis, visualisation, SQL, Python, and ML basics. Free Cisco certificate.', region: 'global' },
+	{ title: 'Python Essentials 1 & 2', org: 'Cisco Networking Academy', url: 'https://www.netacad.com/courses/python-essentials-1', description: 'Python from basics to OOP, file handling, and modules. Free Cisco certificate.', region: 'global' },
+
+	// ── Microsoft / GitHub ────────────────────────────────────────────────────
+	{ title: 'GitHub Foundations Certification', org: 'GitHub', url: 'https://examregistration.github.com/certification/GHF', description: 'Git, GitHub repos, pull requests, Actions, Codespaces. Free exam voucher available periodically.', region: 'global' },
+	{ title: 'Microsoft Azure Fundamentals (AZ-900)', org: 'Microsoft', url: 'https://learn.microsoft.com/en-us/certifications/azure-fundamentals/', description: 'Cloud concepts, Azure services, security, compliance. Entry-level cert with free Microsoft Learn path.', region: 'global' },
+	{ title: 'Microsoft AI Fundamentals (AI-900)', org: 'Microsoft', url: 'https://learn.microsoft.com/en-us/certifications/azure-ai-fundamentals/', description: 'ML workloads, computer vision, NLP, and conversational AI on Azure. Free learning path.', region: 'global' },
+	{ title: 'Power BI Data Analyst Associate (PL-300)', org: 'Microsoft', url: 'https://learn.microsoft.com/en-us/certifications/power-bi-data-analyst-associate/', description: 'Data prep, modelling, visualisation, and analysis with Power BI. Free Microsoft Learn path.', region: 'global' },
+
+	// ── Kaggle ───────────────────────────────────────────────────────────────
+	{ title: 'Kaggle Python Course', org: 'Kaggle', url: 'https://www.kaggle.com/learn/python', description: 'Python for data science: syntax, functions, loops, and libraries. Free Kaggle certificate.', region: 'global' },
+	{ title: 'Kaggle Machine Learning', org: 'Kaggle', url: 'https://www.kaggle.com/learn/intro-to-machine-learning', description: 'Decision trees, random forests, XGBoost, and cross-validation. Free Kaggle certificate.', region: 'global' },
+	{ title: 'Kaggle Deep Learning', org: 'Kaggle', url: 'https://www.kaggle.com/learn/deep-learning', description: 'Computer vision with TensorFlow/Keras: CNNs and transfer learning. Free Kaggle certificate.', region: 'global' },
+	{ title: 'Kaggle NLP', org: 'Kaggle', url: 'https://www.kaggle.com/learn/natural-language-processing', description: 'Text processing, word vectors, word2vec, spaCy. Free Kaggle certificate.', region: 'global' },
+	{ title: 'Kaggle Pandas', org: 'Kaggle', url: 'https://www.kaggle.com/learn/pandas', description: 'Data manipulation with Pandas: indexing, aggregation, groupby, merging. Free Kaggle certificate.', region: 'global' },
+	{ title: 'Kaggle SQL', org: 'Kaggle', url: 'https://www.kaggle.com/learn/intro-to-sql', description: 'SQL for data analysis: SELECT, JOIN, aggregation, subqueries, window functions. Free Kaggle certificate.', region: 'global' },
+	{ title: 'Kaggle AI Ethics', org: 'Kaggle', url: 'https://www.kaggle.com/learn/intro-to-ai-ethics', description: 'Fairness, algorithmic bias, and responsible AI design. Free Kaggle certificate.', region: 'global' },
+	{ title: 'Kaggle Geospatial Analysis', org: 'Kaggle', url: 'https://www.kaggle.com/learn/geospatial-analysis', description: 'Geospatial data, maps, and visualisation with geopandas and folium. Free Kaggle certificate.', region: 'global' },
+
+	// ── Harvard / Stanford / edX ──────────────────────────────────────────────
+	{ title: 'CS50: Introduction to Computer Science', org: 'Harvard / edX', url: 'https://www.edx.org/learn/computer-science/harvard-university-cs50-s-introduction-to-computer-science', description: 'C, Python, SQL, JavaScript, and web development. The world\'s most popular CS course. Free to audit on edX.', region: 'global' },
+	{ title: 'CS50 Web Programming with Python and JavaScript', org: 'Harvard / edX', url: 'https://www.edx.org/learn/web-development/harvard-university-cs50-s-web-programming-with-python-and-javascript', description: 'Django, JavaScript, SQL, React, testing, and CI/CD. Full-stack web development. Free to audit on edX.', region: 'global' },
+	{ title: 'CS50 AI with Python', org: 'Harvard / edX', url: 'https://www.edx.org/learn/artificial-intelligence/harvard-university-cs50-s-introduction-to-artificial-intelligence-with-python', description: 'Search, inference, ML, and neural networks in Python. Free to audit on edX.', region: 'global' },
+	{ title: 'Algorithms Specialization', org: 'Stanford / Coursera', url: 'https://www.coursera.org/specializations/algorithms', description: 'Sorting, graph algorithms, greedy, dynamic programming, NP-completeness by Tim Roughgarden. Free to audit.', region: 'global' },
+
+	// ── Design / Other ────────────────────────────────────────────────────────
+	{ title: 'Figma UI/UX Design Fundamentals', org: 'Figma', url: 'https://help.figma.com/hc/en-us/categories/360002042553', description: 'UI design, prototyping, auto layout, components, design systems. Free official Figma learning resources.', region: 'global' },
+	{ title: 'Salesforce Administrator Trailhead', org: 'Salesforce', url: 'https://trailhead.salesforce.com/credentials/administrator', description: 'CRM config, automation, reports, and security. Salesforce Admin is among India\'s most in-demand tech skills. Free prep on Trailhead.', region: 'global' },
 ];
 
 // ── Collector ─────────────────────────────────────────────────────────────────
