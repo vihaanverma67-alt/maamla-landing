@@ -4,7 +4,7 @@ export function getDashboardHtml(): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CV Engine</title>
+<title>maamla.ai</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -144,6 +144,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .spinner.accent{border-color:var(--accent-dim);border-top-color:var(--accent)}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* ── Skeleton cards ── */
+.skel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px;overflow:hidden;position:relative}
+.skel::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.04) 50%,transparent 100%);background-size:200% 100%;animation:shimmer 1.4s infinite}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+.skel-head{display:flex;gap:12px;align-items:flex-start}
+.skel-badge{width:40px;height:40px;border-radius:10px;background:var(--surface2);flex-shrink:0}
+.skel-lines{flex:1;display:flex;flex-direction:column;gap:6px}
+.skel-line{height:10px;border-radius:4px;background:var(--surface2)}
+.skel-line.w80{width:80%}.skel-line.w55{width:55%}.skel-line.w65{width:65%}.skel-line.w40{width:40%}
+.skel-tags{display:flex;gap:6px}
+.skel-tag{height:18px;width:60px;border-radius:20px;background:var(--surface2)}
+.skel-desc{display:flex;flex-direction:column;gap:5px}
+.skel-foot{display:flex;justify-content:flex-end}
+.skel-btn{height:24px;width:72px;border-radius:var(--r-sm);background:var(--surface2)}
+
 /* ── CV Tools page ── */
 .cv-page-grid{display:grid;grid-template-columns:1fr 320px;gap:20px;padding:20px 28px 40px;align-items:start}
 @media(max-width:900px){.cv-page-grid{grid-template-columns:1fr}}
@@ -258,15 +273,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 
 /* ── Mobile sidebar toggle ── */
 .sb-toggle{display:none;position:fixed;top:12px;left:12px;z-index:30;width:36px;height:36px;border-radius:9px;background:#0A0A16;border:1px solid var(--border);cursor:pointer;align-items:center;justify-content:center;font-size:18px}
+.sb-backdrop{display:none;position:fixed;inset:0;z-index:19;background:rgba(0,0,0,.55);backdrop-filter:blur(2px)}
+.sb-backdrop.on{display:block}
 @media(max-width:760px){
-  .sidebar{transform:translateX(-100%);transition:transform .2s}
-  .sidebar.open{transform:none}
+  .sidebar{transform:translateX(-100%);transition:transform .25s cubic-bezier(.4,0,.2,1)}
+  .sidebar.open{transform:none;box-shadow:4px 0 32px rgba(0,0,0,.6)}
   .content,.overlay{margin-left:0}
   #login-msg{margin-left:50%}
   .sb-toggle{display:flex}
   .cv-page-grid{padding:16px}
   .grid-wrap{padding:16px}
-  .topbar{padding:16px 16px 0}
+  .topbar{padding:60px 16px 0}
   .tab-bar{padding:12px 16px 0}
 }
 </style>
@@ -274,6 +291,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 <body>
 
 <button class="sb-toggle" onclick="toggleSidebar()" aria-label="Menu">&#9776;</button>
+<div class="sb-backdrop" id="sb-backdrop" onclick="closeSidebar()"></div>
 
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
@@ -411,10 +429,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     </div>
     <div class="grid-wrap">
       <div id="pane-india"><div class="card-grid" id="india-list">
-        <div class="empty"><div class="empty-icon">⏳</div><span class="spinner accent"></span></div>
+        <div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div>
       </div></div>
       <div id="pane-global" style="display:none"><div class="card-grid" id="global-list">
-        <div class="empty"><div class="empty-icon">⏳</div><span class="spinner accent"></span></div>
+        <div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div>
       </div></div>
       <div id="pane-all" style="display:none">
         <div class="grid-section">
@@ -439,7 +457,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     </div>
     <div class="grid-wrap">
       <div class="card-grid" id="cert-list">
-        <div class="empty"><div class="empty-icon">⏳</div><span class="spinner accent"></span></div>
+        <div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div>
       </div>
     </div>
   </div>
@@ -459,7 +477,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     </div>
     <div class="grid-wrap">
       <div class="card-grid" id="ngo-list">
-        <div class="empty"><div class="empty-icon">⏳</div><span class="spinner accent"></span></div>
+        <div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div>
       </div>
     </div>
   </div>
@@ -474,7 +492,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     </div>
     <div class="grid-wrap">
       <div class="card-grid" id="conf-list">
-        <div class="empty"><div class="empty-icon">⏳</div><span class="spinner accent"></span></div>
+        <div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div><div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div>
       </div>
     </div>
   </div>
@@ -585,7 +603,14 @@ function setBtn(id,loading,label){var b=document.getElementById(id);if(!b)return
 function sugTypeClass(t){return t==='add_skill'?'sug-skill':'sug-section';}
 
 /* ── Sidebar toggle (mobile) ── */
-function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sb-backdrop').classList.remove('on');
+}
+function toggleSidebar(){
+  var open = document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sb-backdrop').classList.toggle('on', open);
+}
 
 /* ── Page routing ── */
 var _loadedPages = {};
@@ -641,7 +666,7 @@ function showPage(page, subTab) {
   }
 
   // close mobile sidebar
-  document.getElementById('sidebar').classList.remove('open');
+  closeSidebar();
 }
 
 function switchTab(tab){
@@ -719,8 +744,9 @@ function loadSection(key, listId, badgeId, onTotal, more){
   if(!state) state=sectionState[key]={offset:0,total:0,loaded:0};
   var listEl=document.getElementById(listId);
   if(!listEl) return;
+  var _skelCard='<div class="skel"><div class="skel-head"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line w80"></div><div class="skel-line w55"></div></div></div><div class="skel-tags"><div class="skel-tag"></div><div class="skel-tag"></div></div><div class="skel-desc"><div class="skel-line w65"></div><div class="skel-line w40"></div></div><div class="skel-foot"><div class="skel-btn"></div></div></div>';
   if(!more){
-    listEl.innerHTML='<div class="empty"><span class="spinner accent"></span></div>';
+    listEl.innerHTML=_skelCard+_skelCard+_skelCard+_skelCard+_skelCard+_skelCard;
   } else {
     var smr=listEl.querySelector('.show-more-wrap');
     if(smr) smr.remove();
@@ -739,7 +765,7 @@ function loadSection(key, listId, badgeId, onTotal, more){
       if(onTotal) onTotal(state.total);
       if(!more){
         if(!items.length){
-          listEl.innerHTML='<div class="empty"><div class="empty-icon">🔍</div>None found. Try collecting first.</div>';
+          listEl.innerHTML='<div class="empty"><div class="empty-icon" style="font-size:36px;margin-bottom:14px">📭</div><div style="font-weight:600;margin-bottom:6px;color:var(--text)">Nothing here yet</div><div style="margin-bottom:18px">Run a collection to discover opportunities ranked for your profile.</div><button class="btn btn-primary btn-sm" onclick="runCollect()">Collect now</button></div>';
         } else {
           listEl.innerHTML=items.map(buildCard).join('');
         }

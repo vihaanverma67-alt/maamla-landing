@@ -6,6 +6,15 @@ export function landingHtml(): string {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="maamla.ai — internships, certificates, NGOs and conferences ranked for your CV. Built for undergrads in India.">
 <title>maamla.ai — Your Opportunity Engine</title>
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://maamla.ai/">
+<meta property="og:title" content="maamla.ai — Your Opportunity Engine">
+<meta property="og:description" content="Internships, certificates, NGOs and conferences ranked for your CV. Built for undergrads in India.">
+<meta property="og:image" content="https://maamla.ai/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="maamla.ai — Your Opportunity Engine">
+<meta name="twitter:description" content="Internships, certificates, NGOs and conferences ranked for your CV. Built for undergrads in India.">
+<meta name="twitter:image" content="https://maamla.ai/og.png">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{

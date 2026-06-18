@@ -16,6 +16,15 @@ function json(data: unknown, status = 200): Response {
 	});
 }
 
+const HTML_SECURITY_HEADERS: Record<string, string> = {
+	'Content-Type': 'text/html;charset=UTF-8',
+	'X-Content-Type-Options': 'nosniff',
+	'X-Frame-Options': 'DENY',
+	'Referrer-Policy': 'strict-origin-when-cross-origin',
+	'Content-Security-Policy':
+		"default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'",
+};
+
 // Returns the verified caller email. A real Access token always takes priority.
 // The dev fallback (DEV_FALLBACK_EMAIL in .dev.vars) can only activate when:
 //   - no real token was present or valid, AND
@@ -52,16 +61,12 @@ export default {
 		try {
 			// GET / on maamla.ai (no subdomain) — landing page, no auth required
 			if (method === 'GET' && path === '' && url.hostname === 'maamla.ai') {
-				return new Response(landingHtml(), {
-					headers: { 'Content-Type': 'text/html;charset=UTF-8' },
-				});
+				return new Response(landingHtml(), { headers: HTML_SECURITY_HEADERS });
 			}
 
 			// GET / — dashboard
 			if (method === 'GET' && path === '') {
-				return new Response(getDashboardHtml(), {
-					headers: { 'Content-Type': 'text/html;charset=UTF-8' },
-				});
+				return new Response(getDashboardHtml(), { headers: HTML_SECURITY_HEADERS });
 			}
 
 			// GET /me — identity + onboarding status
@@ -102,14 +107,15 @@ export default {
 
 				const name = typeof body.name === 'string' ? body.name.trim() : '';
 				if (!name) return json({ error: 'name_required' }, 400);
+				if (name.length > 200) return json({ error: 'name too long (max 200 chars)' }, 400);
 
-				const stage        = typeof body.stage === 'string' ? body.stage.trim() : '';
-				const education    = typeof body.education === 'string' ? body.education.trim() : '';
-				const experience   = typeof body.experience === 'string' ? body.experience.trim() : '';
-				const skills       = Array.isArray(body.skills)           ? (body.skills as string[]) : [];
-				const interests    = Array.isArray(body.interests)         ? (body.interests as string[]) : [];
-				const targetLocs   = Array.isArray(body.target_locations)  ? (body.target_locations as string[]) : [];
-				const achievements = Array.isArray(body.achievements)       ? (body.achievements as string[]) : [];
+				const stage        = typeof body.stage === 'string' ? body.stage.trim().slice(0, 200) : '';
+				const education    = typeof body.education === 'string' ? body.education.trim().slice(0, 1000) : '';
+				const experience   = typeof body.experience === 'string' ? body.experience.trim().slice(0, 5000) : '';
+				const skills       = Array.isArray(body.skills)           ? (body.skills as string[]).slice(0, 100) : [];
+				const interests    = Array.isArray(body.interests)         ? (body.interests as string[]).slice(0, 100) : [];
+				const targetLocs   = Array.isArray(body.target_locations)  ? (body.target_locations as string[]).slice(0, 20) : [];
+				const achievements = Array.isArray(body.achievements)       ? (body.achievements as string[]).slice(0, 50) : [];
 
 				const cvTextOverride = typeof body.cv_text === 'string' && body.cv_text.trim() ? body.cv_text.trim() : null;
 
@@ -229,11 +235,12 @@ export default {
 				};
 				const name = typeof body.name === 'string' ? body.name.trim() : '';
 				if (!name) return json({ error: 'name_required' }, 400);
-				const stage      = typeof body.stage === 'string' ? body.stage.trim() : '';
-				const skills     = Array.isArray(body.skills)            ? (body.skills as string[]) : [];
-				const interests  = Array.isArray(body.interests)         ? (body.interests as string[]) : [];
-				const targetLocs = Array.isArray(body.target_locations)  ? (body.target_locations as string[]) : [];
-				const experience = typeof body.experience === 'string' ? body.experience.trim() : '';
+				if (name.length > 200) return json({ error: 'name too long (max 200 chars)' }, 400);
+				const stage      = typeof body.stage === 'string' ? body.stage.trim().slice(0, 200) : '';
+				const skills     = Array.isArray(body.skills)            ? (body.skills as string[]).slice(0, 100) : [];
+				const interests  = Array.isArray(body.interests)         ? (body.interests as string[]).slice(0, 100) : [];
+				const targetLocs = Array.isArray(body.target_locations)  ? (body.target_locations as string[]).slice(0, 20) : [];
+				const experience = typeof body.experience === 'string' ? body.experience.trim().slice(0, 5000) : '';
 				await db
 					.prepare('UPDATE profile SET name = ?, stage = ?, skills = ?, interests = ?, target_locations = ?, experience = ?, updated_at = ? WHERE user_email = ?')
 					.bind(name, stage, JSON.stringify(skills), JSON.stringify(interests), JSON.stringify(targetLocs), experience || null, now(), email)
@@ -243,6 +250,8 @@ export default {
 
 			// POST /sources/bulk — must come before POST /sources
 			if (method === 'POST' && path === '/sources/bulk') {
+				const email = await resolveEmail(request, env);
+				if (!email) return json({ error: 'not_authenticated' }, 401);
 				const body = (await request.json()) as unknown;
 				if (!Array.isArray(body)) return json({ error: 'Expected an array' }, 400);
 
@@ -266,6 +275,8 @@ export default {
 
 			// POST /sources
 			if (method === 'POST' && path === '/sources') {
+				const email = await resolveEmail(request, env);
+				if (!email) return json({ error: 'not_authenticated' }, 401);
 				const body = (await request.json()) as { ats_type?: string; token?: string; label?: string; event_type?: string };
 				if (!body.ats_type || !body.token || !body.label) return json({ error: 'ats_type, token, and label are required' }, 400);
 				if (!VALID_ATS.has(body.ats_type)) return json({ error: `Invalid ats_type: ${body.ats_type}` }, 400);
@@ -289,6 +300,8 @@ export default {
 
 			// GET /collect
 			if (method === 'GET' && path === '/collect') {
+				const email = await resolveEmail(request, env);
+				if (!email) return json({ error: 'not_authenticated' }, 401);
 				const runResult = await runAllSources(db);
 				return json(runResult);
 			}
@@ -416,6 +429,8 @@ export default {
 
 			// GET /backfill-regions — one-time re-classification of existing rows
 			if (method === 'GET' && path === '/backfill-regions') {
+				const email = await resolveEmail(request, env);
+				if (!email) return json({ error: 'not_authenticated' }, 401);
 				const { results: opps } = await db
 					.prepare('SELECT id, location FROM opportunities')
 					.all<{ id: number; location: string | null }>();
@@ -498,7 +513,8 @@ export default {
 
 			return json({ error: 'Not found' }, 404);
 		} catch (err) {
-			return json({ error: String(err) }, 500);
+			console.error('[worker]', err);
+			return json({ error: 'Internal server error' }, 500);
 		}
 	},
 
