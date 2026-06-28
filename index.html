@@ -268,8 +268,8 @@ footer a:hover{color:var(--purple)}
 
 /* ─── Cinematic hero ─── */
 #cin-shell{position:relative}
-#cin-stage{position:sticky;top:0;height:100svh;overflow:hidden;background:#050410}
-#cin-stage::before,#cin-stage::after{content:'';position:absolute;left:0;right:0;height:5.5%;background:#000;z-index:10;pointer-events:none}
+#cin-stage{position:sticky;top:0;height:100svh;overflow:hidden;background:#0E1428}
+#cin-stage::before,#cin-stage::after{content:'';position:absolute;left:0;right:0;height:3%;background:#000;z-index:10;pointer-events:none}
 #cin-stage::before{top:0}
 #cin-stage::after{bottom:0}
 #cin-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1}
@@ -290,7 +290,7 @@ footer a:hover{color:var(--purple)}
 .cvp-stamp{position:absolute;bottom:9px;right:9px;border:1.5px solid #2EE8A4;color:#2EE8A4;font-size:6.5px;font-weight:900;padding:2px 5px;border-radius:2px;transform:rotate(-8deg);letter-spacing:.8px;font-family:Calibri,Arial,sans-serif}
 @keyframes pdot{0%,100%{opacity:1}50%{opacity:.25}}
 /* Vignette */
-#cin-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 28%,rgba(0,0,0,.72) 100%);z-index:4;pointer-events:none}
+#cin-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 40%,rgba(0,0,0,.38) 100%);z-index:4;pointer-events:none}
 /* Film grain */
 #cin-grain{position:absolute;inset:0;z-index:9;pointer-events:none;opacity:.045;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px 200px;animation:grain .12s steps(1) infinite}
 @keyframes grain{0%{transform:translate(0,0)}10%{transform:translate(-2%,-3%)}20%{transform:translate(3%,2%)}30%{transform:translate(-1%,4%)}40%{transform:translate(4%,-1%)}50%{transform:translate(-3%,3%)}60%{transform:translate(2%,-4%)}70%{transform:translate(-4%,2%)}80%{transform:translate(3%,-2%)}90%{transform:translate(-2%,4%)}100%{transform:translate(1%,-1%)}}
@@ -711,11 +711,11 @@ document.querySelectorAll('.magnetic').forEach(function(btn){
   function drawCity(baseY,ox,ow){
     getCity().forEach(function(b){
       var bx=ox+(b.x/W)*ow,bww=b.w*(ow/W),bTop=baseY-b.h;
-      ctx.fillStyle='#07091A';ctx.fillRect(bx,bTop,bww,b.h+4);
+      ctx.fillStyle='#0C0F22';ctx.fillRect(bx,bTop,bww,b.h+4);
       b.lights.forEach(function(l){
         if(!l.on)return;
         if(l.blink&&Math.sin(TIME*.5+l.r*6.7)>.58)return;
-        ctx.fillStyle='rgba(252,208,72,.48)';
+        ctx.fillStyle='rgba(255,218,88,.90)';
         ctx.fillRect(bx+(l.c/l.cols)*bww+1,bTop+(l.r/l.rows)*b.h+2,
           Math.max(1.5,bww/l.cols-2.5),Math.max(1.5,b.h/l.rows-3.5));
       });
@@ -725,20 +725,27 @@ document.querySelectorAll('.magnetic').forEach(function(btn){
   function drawWin(x,y,w,h,glow){
     ctx.save();
     ctx.beginPath();ctx.rect(x+4,y+4,w-8,h-8);ctx.clip();
+    /* sky gradient inside window — visible deep navy-to-amber dusk */
     var sky=ctx.createLinearGradient(0,y,0,y+h*.7);
-    sky.addColorStop(0,'#020510');sky.addColorStop(1,'#06091A');
+    sky.addColorStop(0,'#0C1030');sky.addColorStop(.55,'#1C1820');sky.addColorStop(1,'#281408');
     ctx.fillStyle=sky;ctx.fillRect(x,y,w,h);
+    /* sunset horizon glow inside window */
+    var hz=ctx.createLinearGradient(0,y+h*.5,0,y+h);
+    hz.addColorStop(0,'rgba(255,160,40,.28)');hz.addColorStop(1,'rgba(200,80,20,.18)');
+    ctx.fillStyle=hz;ctx.fillRect(x,y+h*.45,w,h*.55);
     drawCity(y+h,x,w);
     ctx.restore();
-    var wg=ctx.createRadialGradient(x+w*.5,y+h*.38,0,x+w*.5,y+h*.38,Math.max(w,h)*.8);
-    wg.addColorStop(0,'rgba(255,182,55,'+(0.32*glow)+')');
-    wg.addColorStop(.45,'rgba(255,155,38,'+(0.11*glow)+')');
+    /* golden glow spilling out of window into room */
+    var wg=ctx.createRadialGradient(x+w*.5,y+h*.42,0,x+w*.5,y+h*.42,Math.max(w,h)*.9);
+    wg.addColorStop(0,'rgba(255,185,60,'+(0.58*glow)+')');
+    wg.addColorStop(.38,'rgba(255,155,38,'+(0.28*glow)+')');
+    wg.addColorStop(.7,'rgba(255,130,28,'+(0.10*glow)+')');
     wg.addColorStop(1,'transparent');
     ctx.save();ctx.globalCompositeOperation='screen';
-    ctx.fillStyle=wg;ctx.fillRect(x-w*.35,y-h*.22,w*1.7,h*1.44);
+    ctx.fillStyle=wg;ctx.fillRect(x-w*.4,y-h*.25,w*1.8,h*1.5);
     ctx.restore();
-    ctx.strokeStyle='rgba(255,255,255,.13)';ctx.lineWidth=5;ctx.strokeRect(x,y,w,h);
-    ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=2;
+    ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=5;ctx.strokeRect(x,y,w,h);
+    ctx.strokeStyle='rgba(255,255,255,.10)';ctx.lineWidth=2;
     ctx.beginPath();
     ctx.moveTo(x+w*.5,y);ctx.lineTo(x+w*.5,y+h);
     ctx.moveTo(x,y+h*.44);ctx.lineTo(x+w,y+h*.44);
@@ -748,11 +755,11 @@ document.querySelectorAll('.magnetic').forEach(function(btn){
   function drawDesk(deskY,al){
     ctx.save();ctx.globalAlpha*=al;
     var dg=ctx.createLinearGradient(0,deskY,0,H);
-    dg.addColorStop(0,'#201408');dg.addColorStop(.07,'#1C1108');
-    dg.addColorStop(.5,'#171006');dg.addColorStop(1,'#0F0A04');
+    dg.addColorStop(0,'#3C2210');dg.addColorStop(.07,'#341C0C');
+    dg.addColorStop(.5,'#2A1608');dg.addColorStop(1,'#1C1005');
     ctx.fillStyle=dg;ctx.fillRect(0,deskY,W,H-deskY);
-    ctx.fillStyle='rgba(255,192,65,.09)';ctx.fillRect(0,deskY,W,1.5);
-    ctx.strokeStyle='rgba(0,0,0,.15)';ctx.lineWidth=.8;
+    ctx.fillStyle='rgba(255,200,80,.18)';ctx.fillRect(0,deskY,W,2);
+    ctx.strokeStyle='rgba(0,0,0,.22)';ctx.lineWidth=.8;
     for(var g=0;g<12;g++){
       var gy=deskY+g*((H-deskY)/12);
       ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy+(g%3===0?2:-1.5));ctx.stroke();
@@ -764,13 +771,18 @@ document.querySelectorAll('.magnetic').forEach(function(btn){
   function handPlace(cx,cy,sc,al){
     if(al<.01)return;
     ctx.save();ctx.globalAlpha*=al;ctx.translate(cx,cy);ctx.scale(sc,sc);
-    ctx.fillStyle='#12100A';
+    /* hand skin: warm dark brown, clearly visible */
+    ctx.fillStyle='#2E1E0E';
     ctx.beginPath();ctx.ellipse(0,0,68,46,0,0,Math.PI*2);ctx.fill();
-    for(var i=-2;i<=2;i++){ctx.beginPath();ctx.ellipse(i*14,-52,7.5,27,i*.05,0,Math.PI*2);ctx.fillStyle='#1A150C';ctx.fill();}
-    ctx.beginPath();ctx.ellipse(-76,12,22,11,-.34,0,Math.PI*2);ctx.fillStyle='#12100A';ctx.fill();
-    ctx.strokeStyle='rgba(255,192,65,.22)';ctx.lineWidth=2;
+    for(var i=-2;i<=2;i++){ctx.beginPath();ctx.ellipse(i*14,-52,7.5,27,i*.05,0,Math.PI*2);ctx.fillStyle='#3A2412';ctx.fill();}
+    ctx.beginPath();ctx.ellipse(-76,12,22,11,-.34,0,Math.PI*2);ctx.fillStyle='#2E1E0E';ctx.fill();
+    /* knuckle highlight */
+    ctx.strokeStyle='rgba(255,210,150,.18)';ctx.lineWidth=2;
     ctx.beginPath();ctx.ellipse(0,0,68,46,0,Math.PI*.08,Math.PI*.9);ctx.stroke();
-    ctx.strokeStyle='rgba(210,162,76,.55)';ctx.lineWidth=5.5;
+    /* gold watch */
+    ctx.strokeStyle='rgba(210,162,76,.80)';ctx.lineWidth=5.5;
+    ctx.beginPath();ctx.arc(-62,18,17,-.5,1.1);ctx.stroke();
+    ctx.strokeStyle='rgba(255,215,100,.35)';ctx.lineWidth=2;
     ctx.beginPath();ctx.arc(-62,18,17,-.5,1.1);ctx.stroke();
     ctx.restore();
   }
@@ -778,12 +790,12 @@ document.querySelectorAll('.magnetic').forEach(function(btn){
   function handOffer(cx,cy,sc,al){
     if(al<.01)return;
     ctx.save();ctx.globalAlpha*=al;ctx.translate(cx,cy);ctx.scale(sc,sc);
-    ctx.fillStyle='#12100A';
+    ctx.fillStyle='#2E1E0E';
     ctx.fillRect(-36,30,72,88);
     ctx.beginPath();ctx.ellipse(0,14,60,40,0,0,Math.PI*2);ctx.fill();
-    for(var i=-1.5;i<=1.5;i++){ctx.beginPath();ctx.ellipse(i*15,-18,7.5,30,i*.06,0,Math.PI*2);ctx.fillStyle='#1C150C';ctx.fill();}
-    ctx.beginPath();ctx.ellipse(68,20,11,26,.28,0,Math.PI*2);ctx.fillStyle='#12100A';ctx.fill();
-    ctx.strokeStyle='rgba(255,192,65,.18)';ctx.lineWidth=1.5;
+    for(var i=-1.5;i<=1.5;i++){ctx.beginPath();ctx.ellipse(i*15,-18,7.5,30,i*.06,0,Math.PI*2);ctx.fillStyle='#3A2412';ctx.fill();}
+    ctx.beginPath();ctx.ellipse(68,20,11,26,.28,0,Math.PI*2);ctx.fillStyle='#2E1E0E';ctx.fill();
+    ctx.strokeStyle='rgba(255,210,150,.14)';ctx.lineWidth=1.5;
     ctx.beginPath();ctx.ellipse(0,14,60,40,0,-.3,Math.PI*.62);ctx.stroke();
     ctx.restore();
   }
@@ -791,24 +803,24 @@ document.querySelectorAll('.magnetic').forEach(function(btn){
   function handReceive(cx,cy,sc,al,flip){
     if(al<.01)return;
     ctx.save();ctx.globalAlpha*=al;ctx.translate(cx,cy);ctx.scale(sc*(flip?-1:1),sc);
-    ctx.fillStyle='#12100A';
+    ctx.fillStyle='#2E1E0E';
     ctx.beginPath();ctx.ellipse(0,0,50,34,.2,0,Math.PI*2);ctx.fill();
-    for(var i=0;i<=3;i++){ctx.beginPath();ctx.ellipse(32+i*5,-38+i*9,7,25,-.3,0,Math.PI*2);ctx.fillStyle='#1C150C';ctx.fill();}
-    ctx.beginPath();ctx.ellipse(-42,-12,10,22,.25,0,Math.PI*2);ctx.fillStyle='#12100A';ctx.fill();
-    ctx.strokeStyle='rgba(255,192,65,.18)';ctx.lineWidth=1.5;
+    for(var i=0;i<=3;i++){ctx.beginPath();ctx.ellipse(32+i*5,-38+i*9,7,25,-.3,0,Math.PI*2);ctx.fillStyle='#3A2412';ctx.fill();}
+    ctx.beginPath();ctx.ellipse(-42,-12,10,22,.25,0,Math.PI*2);ctx.fillStyle='#2E1E0E';ctx.fill();
+    ctx.strokeStyle='rgba(255,210,150,.14)';ctx.lineWidth=1.5;
     ctx.beginPath();ctx.ellipse(0,0,50,34,.2,-.4,.8);ctx.stroke();
-    if(flip){ctx.strokeStyle='rgba(210,162,76,.55)';ctx.lineWidth=5;ctx.beginPath();ctx.arc(-58,6,16,-.3,1.3);ctx.stroke();}
+    if(flip){ctx.strokeStyle='rgba(210,162,76,.80)';ctx.lineWidth=5;ctx.beginPath();ctx.arc(-58,6,16,-.3,1.3);ctx.stroke();}
     ctx.restore();
   }
 
   function handSmooth(cx,cy,sc,al){
     if(al<.01)return;
     ctx.save();ctx.globalAlpha*=al;ctx.translate(cx,cy);ctx.scale(sc,sc);
-    ctx.fillStyle='#12100A';
+    ctx.fillStyle='#2E1E0E';
     ctx.beginPath();ctx.ellipse(0,0,76,40,-.1,0,Math.PI*2);ctx.fill();
-    for(var i=-2;i<=2;i++){ctx.beginPath();ctx.ellipse(i*15,-46,7,26,i*.07,0,Math.PI*2);ctx.fillStyle='#1C150C';ctx.fill();}
-    ctx.beginPath();ctx.ellipse(-82,8,22,10,-.28,0,Math.PI*2);ctx.fillStyle='#12100A';ctx.fill();
-    ctx.strokeStyle='rgba(255,192,65,.22)';ctx.lineWidth=2;
+    for(var i=-2;i<=2;i++){ctx.beginPath();ctx.ellipse(i*15,-46,7,26,i*.07,0,Math.PI*2);ctx.fillStyle='#3A2412';ctx.fill();}
+    ctx.beginPath();ctx.ellipse(-82,8,22,10,-.28,0,Math.PI*2);ctx.fillStyle='#2E1E0E';ctx.fill();
+    ctx.strokeStyle='rgba(255,210,150,.18)';ctx.lineWidth=2;
     ctx.beginPath();ctx.ellipse(0,0,76,40,-.1,Math.PI*.08,Math.PI*.88);ctx.stroke();
     ctx.restore();
   }
@@ -816,7 +828,8 @@ document.querySelectorAll('.magnetic').forEach(function(btn){
   function drawSil(cx,cy,sc,al){
     if(al<.01)return;
     ctx.save();ctx.globalAlpha*=al;ctx.translate(cx,cy);ctx.scale(sc,sc);
-    ctx.fillStyle='rgba(5,4,14,.92)';
+    /* silhouette: visible dark slate vs background */
+    ctx.fillStyle='rgba(14,12,28,.96)';
     ctx.beginPath();ctx.ellipse(0,-88,36,44,0,0,Math.PI*2);ctx.fill();
     ctx.beginPath();
     ctx.moveTo(-95,0);ctx.bezierCurveTo(-95,-42,-56,-60,-8,-48);
@@ -829,35 +842,35 @@ document.querySelectorAll('.magnetic').forEach(function(btn){
 
   /* Scene 0 — Image 1: Suited figure carrying portfolio, golden city window behind */
   function sc0(t){
-    /* base: deep dark interior */
-    ctx.fillStyle='#07080F';ctx.fillRect(0,0,W,H);
-    /* suit fabric: left 34% of frame — near-black navy */
+    /* base: dark navy interior */
+    ctx.fillStyle='#141828';ctx.fillRect(0,0,W,H);
+    /* suit fabric: left 34% of frame — dark navy */
     var sf=ctx.createLinearGradient(0,0,W*.38,0);
-    sf.addColorStop(0,'#030410');sf.addColorStop(.55,'#06080E');sf.addColorStop(1,'transparent');
+    sf.addColorStop(0,'#0C0E1E');sf.addColorStop(.55,'#101420');sf.addColorStop(1,'transparent');
     ctx.fillStyle=sf;ctx.fillRect(0,0,W*.38,H);
-    /* lapel highlight (subtle bright edge on suit) */
+    /* lapel highlight */
     ctx.save();
     var lp=ctx.createLinearGradient(W*.20,H*.18,W*.24,H*.36);
-    lp.addColorStop(0,'rgba(255,255,255,.07)');lp.addColorStop(1,'transparent');
+    lp.addColorStop(0,'rgba(255,255,255,.12)');lp.addColorStop(1,'transparent');
     ctx.fillStyle=lp;
     ctx.beginPath();ctx.moveTo(W*.19,H*.18);ctx.lineTo(W*.24,H*.38);ctx.lineTo(W*.28,H*.38);ctx.lineTo(W*.22,H*.18);ctx.closePath();ctx.fill();
     ctx.restore();
     /* tall window: RIGHT side, almost full height */
     drawWin(W*.52,H*.02,W*.46,H*.96,1.0);
-    /* window glow spilling onto interior */
-    var ag=ctx.createRadialGradient(W*.52,H*.42,0,W*.52,H*.42,W*.5);
-    ag.addColorStop(0,'rgba(255,175,52,.13)');ag.addColorStop(1,'transparent');
+    /* strong window glow spilling into room */
+    var ag=ctx.createRadialGradient(W*.52,H*.42,0,W*.52,H*.42,W*.55);
+    ag.addColorStop(0,'rgba(255,175,52,.38)');ag.addColorStop(.5,'rgba(255,155,38,.14)');ag.addColorStop(1,'transparent');
     ctx.fillStyle=ag;ctx.fillRect(0,0,W,H);
-    /* dark floor */
+    /* floor */
     var fl=ctx.createLinearGradient(0,H*.80,0,H);
-    fl.addColorStop(0,'#0A0818');fl.addColorStop(1,'#040410');
+    fl.addColorStop(0,'#1A1628');fl.addColorStop(1,'#0A0A18');
     ctx.fillStyle=fl;ctx.fillRect(0,H*.80,W,H*.20);
     /* dark leather portfolio body at center-bottom (the folder being held) */
     var fX=W*.33,fY=H*.30,fW=W*.32,fH=H*.58;
-    ctx.fillStyle='#0C0B18';
+    ctx.fillStyle='#1C1A32';
     rrect(fX,fY,fW,fH,4);ctx.fill();
     /* portfolio edge shine */
-    ctx.strokeStyle='rgba(255,255,255,.055)';ctx.lineWidth=1;ctx.stroke();
+    ctx.strokeStyle='rgba(255,255,255,.14)';ctx.lineWidth=1;ctx.stroke();
     /* portfolio bottom: slightly darker grip zone */
     ctx.save();ctx.globalAlpha*=.7;
     ctx.fillStyle='rgba(0,0,0,.3)';
@@ -876,17 +889,17 @@ document.querySelectorAll('.magnetic').forEach(function(btn){
 
   /* Scene 1 — Image 2: Opening portfolio on dark wooden desk */
   function sc1(t){
-    /* dark interior */
-    ctx.fillStyle='#070810';ctx.fillRect(0,0,W,H);
-    /* warm lamp/candle glow from upper right */
-    var lamp=ctx.createRadialGradient(W*.90,H*.14,0,W*.90,H*.14,W*.52);
-    lamp.addColorStop(0,'rgba(255,195,78,.24)');lamp.addColorStop(.35,'rgba(255,175,55,.09)');lamp.addColorStop(1,'transparent');
+    /* warm dark interior */
+    ctx.fillStyle='#1A1420';ctx.fillRect(0,0,W,H);
+    /* strong warm lamp/candle glow from upper right */
+    var lamp=ctx.createRadialGradient(W*.90,H*.14,0,W*.90,H*.14,W*.60);
+    lamp.addColorStop(0,'rgba(255,200,80,.55)');lamp.addColorStop(.3,'rgba(255,175,55,.28)');lamp.addColorStop(.6,'rgba(255,155,40,.10)');lamp.addColorStop(1,'transparent');
     ctx.fillStyle=lamp;ctx.fillRect(0,0,W,H);
     /* dark wood desk fills bottom 55% */
     drawDesk(H*.45,1);
     /* open portfolio LEFT COVER: dark leather rectangle to left of paper position */
     var cX=W*.08,cY=H*.48,cW=W*.34,cH=H*.44;
-    ctx.fillStyle='#0E0D1C';
+    ctx.fillStyle='#201E36';
     rrect(cX,cY,cW,cH,3);ctx.fill();
     ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;ctx.stroke();
     /* leather grain on cover */
@@ -909,15 +922,15 @@ document.querySelectorAll('.magnetic').forEach(function(btn){
     ctx.restore();
   }
 
-  /* Scene 2 — Image 3: CV held close, nearly full-frame, very dark background */
+  /* Scene 2 — Image 3: CV held close, nearly full-frame, dark background */
   function sc2(t){
-    /* near-black background with subtle vignette gradient */
-    var bg=ctx.createRadialGradient(W*.5,H*.45,H*.1,W*.5,H*.45,H*.8);
-    bg.addColorStop(0,'#0C0A14');bg.addColorStop(1,'#030308');
+    /* dark charcoal background */
+    var bg=ctx.createRadialGradient(W*.5,H*.45,H*.08,W*.5,H*.45,H*.8);
+    bg.addColorStop(0,'#201E2E');bg.addColorStop(1,'#0C0C18');
     ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-    /* very subtle warm tint on center (light from the paper itself) */
-    var wm=ctx.createRadialGradient(W*.5,H*.48,0,W*.5,H*.48,W*.28);
-    wm.addColorStop(0,'rgba(255,245,220,.04)');wm.addColorStop(1,'transparent');
+    /* warm reflected light from the white paper */
+    var wm=ctx.createRadialGradient(W*.5,H*.48,0,W*.5,H*.48,W*.38);
+    wm.addColorStop(0,'rgba(255,245,220,.14)');wm.addColorStop(1,'transparent');
     ctx.fillStyle=wm;ctx.fillRect(0,0,W,H);
     /* fingers gripping from top edge (dark hand above paper) */
     var fingerY=H*.22,fingerAlpha=eO(sT(t,.05,.45))*.9;
@@ -944,12 +957,12 @@ document.querySelectorAll('.magnetic').forEach(function(btn){
 
   /* Scene 3 — Image 4: Handoff across desk, massive golden sunset windows */
   function sc3(t){
-    ctx.fillStyle='#070810';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#141825';ctx.fillRect(0,0,W,H);
     /* large windows fill upper 65% of frame */
     drawWin(W*.04,H*.02,W*.92,H*.66,1.0);
-    /* strong golden flooding light */
-    var gf=ctx.createRadialGradient(W*.5,H*.3,0,W*.5,H*.3,W*.7);
-    gf.addColorStop(0,'rgba(255,185,55,.18)');gf.addColorStop(.5,'rgba(255,155,38,.07)');gf.addColorStop(1,'transparent');
+    /* strong golden flooding light from windows */
+    var gf=ctx.createRadialGradient(W*.5,H*.3,0,W*.5,H*.3,W*.75);
+    gf.addColorStop(0,'rgba(255,190,60,.42)');gf.addColorStop(.4,'rgba(255,160,40,.20)');gf.addColorStop(1,'transparent');
     ctx.fillStyle=gf;ctx.fillRect(0,0,W,H);
     /* dark desk surface at bottom */
     drawDesk(H*.68,1);
@@ -973,23 +986,24 @@ document.querySelectorAll('.magnetic').forEach(function(btn){
 
   /* Scene 4 — Image 5: Reading CV, hand with gold watch, blurred bokeh city behind */
   function sc4(t){
-    /* very dark base */
-    ctx.fillStyle='#06050D';ctx.fillRect(0,0,W,H);
-    /* bokeh: large soft glowing circles simulating blurred city lights */
+    /* warm dark base */
+    ctx.fillStyle='#1A1420';ctx.fillRect(0,0,W,H);
+    /* bokeh: large bright soft glowing circles — blurred city at dusk */
     var bd=getBokeh();
     bd.forEach(function(b){
+      var br=b.a*3.2; /* triple brightness */
       var g=ctx.createRadialGradient(b.x*W,b.y*H,0,b.x*W,b.y*H,b.r);
-      var col=b.warm?'rgba(255,192,55,':'rgba(255,230,120,';
-      g.addColorStop(0,col+b.a+')');g.addColorStop(1,'transparent');
+      var col=b.warm?'rgba(255,192,55,':'rgba(255,228,120,';
+      g.addColorStop(0,col+Math.min(br,.85)+')');g.addColorStop(1,'transparent');
       ctx.fillStyle=g;ctx.fillRect(b.x*W-b.r,b.y*H-b.r,b.r*2,b.r*2);
     });
-    /* ambient golden wash */
+    /* strong golden ambient wash from right */
     var aw=ctx.createLinearGradient(W,0,0,0);
-    aw.addColorStop(0,'rgba(255,175,48,.18)');aw.addColorStop(.5,'rgba(255,155,38,.06)');aw.addColorStop(1,'transparent');
+    aw.addColorStop(0,'rgba(255,178,50,.40)');aw.addColorStop(.45,'rgba(255,155,38,.16)');aw.addColorStop(1,'transparent');
     ctx.fillStyle=aw;ctx.fillRect(0,0,W,H);
-    /* dark vignette at edges */
-    var vg=ctx.createRadialGradient(W*.5,H*.5,H*.2,W*.5,H*.5,W*.75);
-    vg.addColorStop(0,'transparent');vg.addColorStop(1,'rgba(0,0,0,.65)');
+    /* soft edge vignette (gentle) */
+    var vg=ctx.createRadialGradient(W*.5,H*.5,H*.25,W*.5,H*.5,W*.72);
+    vg.addColorStop(0,'transparent');vg.addColorStop(1,'rgba(0,0,0,.40)');
     ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
     /* suit sleeve: comes from lower-left */
     var ss=ctx.createLinearGradient(0,H,W*.4,H*.4);
@@ -1010,23 +1024,23 @@ document.querySelectorAll('.magnetic').forEach(function(btn){
     }
   }
 
-  /* Scene 5 — Image 6: Close top-down, CV flat on dark desk, hand smoothing */
+  /* Scene 5 — Image 6: Close top-down, CV flat on desk, hand smoothing */
   function sc5(t){
-    /* dark wood desk fills entire frame — close up */
+    /* rich warm wood desk fills entire frame */
     var bg=ctx.createLinearGradient(0,0,0,H);
-    bg.addColorStop(0,'#1E1208');bg.addColorStop(.35,'#1A1006');bg.addColorStop(1,'#110B04');
+    bg.addColorStop(0,'#3C2410');bg.addColorStop(.35,'#341E0C');bg.addColorStop(1,'#201408');
     ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
     /* dense fine wood grain */
-    ctx.strokeStyle='rgba(0,0,0,.14)';ctx.lineWidth=.7;
+    ctx.strokeStyle='rgba(0,0,0,.18)';ctx.lineWidth=.7;
     for(var g=0;g<26;g++){var gy=g*(H/26);ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy+(g%5===0?2.5:g%3===0?-1.5:.8));ctx.stroke();}
-    /* warm rim light from right (window just off-screen) */
-    var rl=ctx.createLinearGradient(W,0,W*.42,0);
-    rl.addColorStop(0,'rgba(255,188,58,.18)');rl.addColorStop(1,'transparent');
+    /* strong rim light from right */
+    var rl=ctx.createLinearGradient(W,0,W*.38,0);
+    rl.addColorStop(0,'rgba(255,192,62,.42)');rl.addColorStop(.5,'rgba(255,175,48,.15)');rl.addColorStop(1,'transparent');
     ctx.fillStyle=rl;ctx.fillRect(0,0,W,H);
-    /* subtle top rim light */
-    var tl=ctx.createLinearGradient(0,0,0,H*.25);
-    tl.addColorStop(0,'rgba(255,175,50,.06)');tl.addColorStop(1,'transparent');
-    ctx.fillStyle=tl;ctx.fillRect(0,0,W,H*.25);
+    /* warm top light */
+    var tl=ctx.createLinearGradient(0,0,0,H*.3);
+    tl.addColorStop(0,'rgba(255,175,50,.20)');tl.addColorStop(1,'transparent');
+    ctx.fillStyle=tl;ctx.fillRect(0,0,W,H*.3);
     /* paper shadow on desk */
     ctx.save();ctx.globalAlpha*=.35;
     ctx.fillStyle='rgba(0,0,0,.6)';
@@ -1046,12 +1060,12 @@ document.querySelectorAll('.magnetic').forEach(function(btn){
 
   /* Scene 6 — Image 7: Wide interview table, two silhouettes, massive golden windows */
   function sc6(t){
-    ctx.fillStyle='#060510';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#141828';ctx.fillRect(0,0,W,H);
     /* massive windows: nearly full width, upper 55% */
     drawWin(W*.06,H*.04,W*.88,H*.55,.98);
-    /* powerful golden flood */
-    var gf=ctx.createRadialGradient(W*.5,H*.3,0,W*.5,H*.3,W*.65);
-    gf.addColorStop(0,'rgba(255,188,55,.20)');gf.addColorStop(.4,'rgba(255,162,40,.08)');gf.addColorStop(1,'transparent');
+    /* very powerful golden flood from windows */
+    var gf=ctx.createRadialGradient(W*.5,H*.28,0,W*.5,H*.28,W*.70);
+    gf.addColorStop(0,'rgba(255,192,58,.50)');gf.addColorStop(.35,'rgba(255,162,42,.24)');gf.addColorStop(.7,'rgba(255,140,30,.08)');gf.addColorStop(1,'transparent');
     ctx.fillStyle=gf;ctx.fillRect(0,0,W,H);
     /* long conference table: perspective trapezoid */
     ctx.fillStyle='#1E1308';
